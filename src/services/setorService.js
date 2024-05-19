@@ -1,14 +1,13 @@
 const db = require('../config/db');
 
 function buscarTodos(){
-    return new Promise((aceito, rejeitado)=>{
-
-        db.query('select * from setor', (error, results)=>{
-            if(error){rejeitado(error); return}
-            aceito(results);
+    return new Promise((resolve, reject)=>{
+        db.query('SELECT * FROM setor', (error, results)=>{
+            if(error){ reject(error); return; }
+            resolve(results);
         });
     });
-};
+}
 
 function buscarSetor(codigo){
     return new Promise((aceito, rejeitado)=>{

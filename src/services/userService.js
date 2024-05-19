@@ -13,12 +13,14 @@ async function buscarTodos(page, limit){
             const total = countResult[0].total;
             const totalPages = Math.ceil(total / limit);
 
-            db.query(`select 
+            db.query(`select
+                        users.id, 
                         users.nome,
                         users.sobrenome,
                         users.email,
                         users.username,
                         users.nivel_acesso,
+                        users.ativo,
                         setor.descricao as setor,
                         cargo.descricao as cargo
                     from users inner join setor on users.id_setor = setor.id
@@ -47,8 +49,8 @@ function buscarUser(codigo){
 function cadastraUser(nome, sobrenome, email, username, password, setor, cargo, acesso) {
     const data_cadastro = datas.ajustarData(datas.obterDataAtualFormatada());
     return new Promise((aceito, rejeitado) => {
-        db.query(`insert into users(nome, sobrenome, email, username, password_user, id_setor, id_cargo, nivel_acesso, data_cadastro) 
-        values('${nome}', '${sobrenome}', '${email}','${username}', '${password}', ${setor}, ${cargo}, ${acesso}, '${data_cadastro}');`, 
+        db.query(`insert into users(nome, sobrenome, email, username, password_user, id_setor, id_cargo, nivel_acesso, ativo, data_cadastro) 
+        values('${nome}', '${sobrenome}', '${email}','${username}', '${password}', ${setor}, ${cargo}, '${acesso}', '1','${data_cadastro}');`, 
             (error, results) => {
                 if (error) {
                     rejeitado(error);
@@ -61,23 +63,42 @@ function cadastraUser(nome, sobrenome, email, username, password, setor, cargo, 
     });
 }
 
-function alteraUser(id, nome, sobrenome, email, username, password, setor, cargo, acesso) {
-    const data_update = datas.ajustarData(datas.obterDataAtualFormatada());
+function alteraUser(id, nome, sobrenome, email, username, setor, cargo, nivel_acesso) {
     return new Promise((aceito, rejeitado) => {
-        db.query(`update users set nome = '${nome}', sobrenome = '${sobrenome}', email = '${email}', username = '${username}', password_user = '${password}', id_setor = ${setor}, id_cargo = ${cargo}, nivel_acesso = '${acesso}' 
-        where id = '${id}';`, 
+        const data_update = datas.ajustarData(datas.obterDataAtualFormatada());
+        db.query(`update users set nome = '${nome}', sobrenome = '${sobrenome}', email = '${email}', username = '${username}', id_setor = ${setor}, id_cargo = ${cargo}, nivel_acesso = '${nivel_acesso}' where id = '${id}';`, 
             (error, results) => {
                 if (error) {
                     rejeitado(error);
                 } else {
                     aceito({
-                        id, nome, sobrenome, email, username, password, setor, cargo, acesso
+                        id, nome, sobrenome, email, username, setor, cargo, nivel_acesso
                     });
                 }
             }
         );
     });
 }
+
+
+function ativaInativa(id, param) {
+    let ativo = param == "true" ? 1 : 0;
+    console.log(ativo)
+    return new Promise((aceito, rejeitado) => {
+        db.query(`update users set ativo = ${ativo} where id = '${id}';`, 
+            (error, results) => {
+                if (error) {
+                    rejeitado(error);
+                } else {
+                    aceito({
+                        id, ativo
+                    });
+                }
+            }
+        );
+    });
+}
+
 
 function excluirUser(id) {
     return new Promise((aceito, rejeitado) => {
@@ -95,5 +116,6 @@ module.exports = {
     buscarUser,
     cadastraUser,
     alteraUser,
+    ativaInativa,
     excluirUser
 };

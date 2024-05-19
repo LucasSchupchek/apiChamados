@@ -70,3 +70,15 @@ alter table chamados add motivo_negacao varchar(100) after status_chamado;
 
 use dbapichamados;
 select * from users;
+
+select 
+                        users.nome,
+                        users.sobrenome,
+                        users.email,
+                        users.username,
+                        users.nivel_acesso,
+                        users.ativo,
+                        setor.descricao as setor,
+                        cargo.descricao as cargo
+                    from users inner join setor on users.id_setor = setor.id
+                    inner join cargo on users.id_cargo = cargo.id

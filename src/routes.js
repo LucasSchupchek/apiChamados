@@ -22,7 +22,6 @@ router.use(validarToken);
 
 router.get('/meusChamados', chamadoController.meusChamados);
 router.get('/chamados', chamadoController.buscarTodos);
-router.get('/chamados', chamadoController.buscarTodos);
 router.get('/chamado/:id', chamadoController.buscarChamado);
 router.post('/chamado', chamadoController.cadastraChamado);
 router.put('/chamado/:id', chamadoController.alteraChamado);
@@ -58,6 +57,7 @@ router.get('/users', userController.buscarTodos);
 router.get('/user/:id', userController.buscarUser);
 router.post('/user', userController.cadastraUser);
 router.put('/user/:id', userController.alteraUser);
+router.put('/userAtivo/:id', userController.ativaInativa);
 router.delete('/user/:id', userController.excluirUser);
 
 module.exports = router;

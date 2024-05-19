@@ -1,17 +1,16 @@
 const setorService = require('../services/setorService');
 
 async function buscarTodos(req, res){
-    let json = {error: '', result:[]};
+    let json = { error: '', result: { data: [], totalItems: 0 } };
     let setores = await setorService.buscarTodos();
 
-    setores.forEach(setor =>{
-        json.result.push({
-            id: setor.id,
-            descricao: setor.descricao
-        })
-    })
-    res.json(json)
-};
+    json.result.data = setores.map(setor => ({
+        id: setor.id,
+        descricao: setor.descricao
+    }));
+    json.result.totalItems = setores.length; // Ajustar conforme a paginação se necessário
+    res.json(json);
+}
 
 async function buscarSetor(req, res){
     let json = {error: '', result:{}};

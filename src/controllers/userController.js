@@ -33,25 +33,26 @@ async function buscarUser(req, res){
 };
 
 async function cadastraUser(req, res){
-    let json = {error: '', result:{}};
+    let json = { error: '', result: {} };
 
-    const nome = req.body.nome;
-    const sobrenome = req.body.sobrenome;
-    const email = req.body.email;
-    const username = req.body.email;
-    const password = req.body.password;
-    const setor = req.body.setor;
-    const cargo = req.body.cargo;
-    const acesso = req.body.acesso;
+    const { nome, sobrenome, email, password, setor, cargo, acesso } = req.body;
+    const username = email; // assumindo que o username é o email
 
-    if(nome && sobrenome && email && username && password && setor && cargo && acesso){
-        const userId = await userService.cadastraUser(nome, sobrenome, email, username, password, setor, cargo, acesso);
-        json.result = userId
-    }else{
-        json.error = 'Capos inválidos';
+    // Verificação de campos obrigatórios
+    if (!nome || !sobrenome || !email || !username || !password || !setor || !cargo || !acesso) {
+        json.error = 'Campos inválidos';
+        return res.status(400).json(json); // Retorna um erro 400 com a mensagem
     }
-    res.json(json)
 
+    try {
+        const userId = await userService.cadastraUser(nome, sobrenome, email, username, password, setor, cargo, acesso);
+        json.result = userId;
+        res.json(json);
+    } catch (error) {
+        console.error('Erro ao cadastrar usuário:', error);
+        json.error = 'Erro interno ao cadastrar usuário';
+        res.status(500).json(json); // Retorna um erro 500 para erro interno do servidor
+    }
 }
 
 async function alteraUser(req, res){
@@ -59,19 +60,31 @@ async function alteraUser(req, res){
 
     const id = req.params.id;
 
-    const nome = req.body.nome;
-    const sobrenome = req.body.sobrenome;
-    const email = req.body.email;
-    const username = req.body.email;
-    const password = req.body.password;
-    const setor = req.body.setor;
-    const cargo = req.body.cargo;
-    const acesso = req.body.acesso;
+    const { nome, sobrenome, email, username, setor, cargo, nivel_acesso } = req.body;
+    console.log('campossss '+ nome, sobrenome, email, username, setor, cargo, nivel_acesso)
 
-    if(nome && sobrenome && email && username && password && setor && cargo && acesso){
-        json.result = await userService.alteraUser(id, nome, email, username, password, setor, cargo, acesso);
+    try {
+        const updatedUser = await userService.alteraUser(id, nome, sobrenome, email, username, setor, cargo, nivel_acesso);
+        json.result = updatedUser;
+        res.json(json);
+    } catch (error) {
+        console.error('Erro ao atualizar usuário:', error);
+        json.error = 'Erro interno ao atualizar usuário';
+        res.status(500).json(json);
+    }
+}
+
+
+async function ativaInativa(req, res){
+    let json = {error: '', result:{}};
+
+    const id = req.params.id;
+    const param = req.query.ativo;
+
+    if(id && param){
+        json.result = await userService.ativaInativa(id, param);
     }else{
-        json.error = 'Capos inválidos';
+        json.error = 'Id ou param ativo nao informado';
     }
     res.json(json)
 }
@@ -88,5 +101,6 @@ module.exports = {
     buscarUser,
     cadastraUser,
     alteraUser,
+    ativaInativa,
     excluirUser
 }

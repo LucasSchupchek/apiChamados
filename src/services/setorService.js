@@ -23,9 +23,9 @@ function buscarSetor(codigo){
     });
 }
 
-function cadastraSetor(descricao) {
+function cadastraSetor(descricao, localizacao) {
     return new Promise((aceito, rejeitado) => {
-        db.query(`insert into setor(descricao) values('${descricao}');`, 
+        db.query(`insert into setor(descricao, localizacao) values('${descricao}', '${localizacao});`, 
             (error, results) => {
                 if (error) {
                     rejeitado(error);
@@ -38,15 +38,33 @@ function cadastraSetor(descricao) {
     });
 }
 
-function alteraSetor(id, descricao) {
+function alteraSetor(id, descricao, localizacao) {
     return new Promise((aceito, rejeitado) => {
-        db.query(`update setor set descricao = '${descricao}' where id = '${id}';`, 
+        db.query(`update setor set descricao = '${descricao}', localizacao = '${localizacao}' where id = '${id}';`, 
             (error, results) => {
                 if (error) {
                     rejeitado(error);
                 } else {
                     aceito({
                         id, descricao
+                    });
+                }
+            }
+        );
+    });
+}
+
+function ativaInativa(id, param) {
+    let ativo = param == "true" ? 1 : 0;
+    console.log(ativo)
+    return new Promise((aceito, rejeitado) => {
+        db.query(`update setor set ativo = ${ativo} where id = '${id}';`, 
+            (error, results) => {
+                if (error) {
+                    rejeitado(error);
+                } else {
+                    aceito({
+                        id, ativo
                     });
                 }
             }
@@ -66,6 +84,7 @@ function excluirSetor(id) {
 }
 
 module.exports = {
+    ativaInativa,
     buscarTodos,
     buscarSetor,
     cadastraSetor,

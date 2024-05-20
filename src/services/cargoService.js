@@ -55,6 +55,24 @@ function alteraCargo(id, descricao) {
     });
 }
 
+function ativaInativa(id, param) {
+    let ativo = param == "true" ? 1 : 0;
+    console.log(ativo)
+    return new Promise((aceito, rejeitado) => {
+        db.query(`update cargo set ativo = ${ativo} where id = '${id}';`, 
+            (error, results) => {
+                if (error) {
+                    rejeitado(error);
+                } else {
+                    aceito({
+                        id, ativo
+                    });
+                }
+            }
+        );
+    });
+}
+
 function excluirCargo(id) {
     return new Promise((aceito, rejeitado) => {
         db.query(`delete from cargo where id = '${id}';`,
@@ -68,6 +86,7 @@ function excluirCargo(id) {
 
 module.exports = {
     buscarTodos,
+    ativaInativa,
     buscarCargo,
     cadastraCargo,
     alteraCargo,

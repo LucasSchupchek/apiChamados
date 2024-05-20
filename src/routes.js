@@ -34,6 +34,7 @@ router.get('/categorias', categoriaController.buscarTodos);
 router.get('/categoria/:id', categoriaController.buscarCategoria);
 router.post('/categoria', categoriaController.cadastraCategoria);
 router.put('/categoria/:id', categoriaController.alteraCategoria);
+router.put('/categoriaAtivo/:id', categoriaController.ativaInativa);
 router.delete('/categoria/:id', categoriaController.excluirCategoria);
 
 router.get('/comentario/:id', comentarioController.buscarComentarios);
@@ -45,12 +46,14 @@ router.get('/setores', setorController.buscarTodos);
 router.get('/setor/:id', setorController.buscarSetor);
 router.post('/setor', setorController.cadastraSetor);
 router.put('/setor/:id', setorController.alteraSetor);
+router.put('/setorAtivo/:id', setorController.ativaInativa);
 router.delete('/setor/:id', setorController.excluirSetor);
 
 router.get('/cargos', cargoController.buscarTodos);
 router.get('/cargo/:id', cargoController.buscarCargo);
 router.post('/cargo', cargoController.cadastraCargo);
 router.put('/cargo/:id', cargoController.alteraCargo);
+router.put('/cargoAtivo/:id', cargoController.ativaInativa);
 router.delete('/cargo/:id', cargoController.excluirCargo);
 
 router.get('/users', userController.buscarTodos);

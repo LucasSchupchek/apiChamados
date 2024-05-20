@@ -1,17 +1,17 @@
 const cargoService = require('../services/cargoService');
 
 async function buscarTodos(req, res){
-    let json = {error: '', result:[]};
+    let json = { error: '', result: { data: [], totalItems: 0 } };
     let cargos = await cargoService.buscarTodos();
 
-    cargos.forEach(cargo =>{
-        json.result.push({
-            id: cargo.id,
-            descricao: cargo.descricao
-        })
-    })
-    res.json(json)
-};
+    json.result.data = cargos.map(setor => ({
+        id: setor.id,
+        descricao: setor.descricao,
+        ativo: setor.ativo
+    }));
+    json.result.totalItems = cargos.length; // Ajustar conforme a paginação se necessário
+    res.json(json);
+}
 
 async function buscarCargo(req, res){
     let json = {error: '', result:{}};
@@ -57,6 +57,20 @@ async function alteraCargo(req, res){
     res.json(json)
 }
 
+async function ativaInativa(req, res){
+    let json = {error: '', result:{}};
+
+    const id = req.params.id;
+    const param = req.query.ativo;
+
+    if(id && param){
+        json.result = await cargoService.ativaInativa(id, param);
+    }else{
+        json.error = 'Id ou param ativo nao informado';
+    }
+    res.json(json)
+}
+
 async function excluirCargo(req, res){
     let json = {error: '', result:{}};
     
@@ -66,6 +80,7 @@ async function excluirCargo(req, res){
 
 module.exports = {
     buscarTodos,
+    ativaInativa,
     buscarCargo,
     cadastraCargo,
     alteraCargo,

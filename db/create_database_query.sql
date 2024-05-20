@@ -66,10 +66,18 @@ create table comentarios_chamado(
     CONSTRAINT fk_comentario_usuario FOREIGN KEY (id_usuario) REFERENCES users (id)
 );
 
+Alter table chamados DROP COLUMN descricao_categoria;
+
 alter table chamados add motivo_negacao varchar(100) after status_chamado;
 
+alter table setor add localizacao varchar(100) after descricao;
+alter table setor add ativo boolean after localizacao;
+alter table cargo add ativo boolean after descricao;
+alter table categoria add color varchar(50) after descricao;
+alter table categoria add ativo boolean after color;
+
 use dbapichamados;
-select * from users;
+select * from categoria;
 
 select 
                         users.nome,

@@ -81,8 +81,6 @@ select * from cargo;
 
 select * from categoria;
 
-Alter table chamados DROP COLUMN descricao_categoria;
-
 SELECT
 	chamados.id,
     chamados.titulo,
@@ -112,3 +110,16 @@ SELECT
     users.email,
     setor.descricao
 from users inner join setor on users.id_setor = setor.id;
+
+use dbapichamados;
+select * from users;
+
+ select 
+	users.nome,
+	users.sobrenome,
+    users.email,
+    users.nivel_acesso,
+    setor.descricao as setor,
+    cargo.descricao as cargo
+from users inner join setor on users.id_setor = setor.id
+inner join cargo on users.id_cargo = cargo.id;

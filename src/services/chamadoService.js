@@ -66,6 +66,30 @@ function buscarTodos(page, limit){
     });
 };
 
+function listChamados(page, limit) {
+    const offset = (page - 1) * limit;
+    return new Promise((aceito, rejeitado) => {
+        db.query(`SELECT
+                    chamados.id,
+                    chamados.titulo,
+                    chamados.descricao,
+                    chamados.status_chamado,
+                    chamados.data_cadastro,
+                    chamados.data_update,
+                    chamados.data_fechamento
+                FROM 
+                    chamados 
+                ORDER BY data_cadastro DESC
+                LIMIT ${limit} OFFSET ${offset}`, (error, results) => {
+            if (error) {
+                rejeitado(error);
+                return;
+            }
+            aceito(results);
+        });
+    });
+};
+
 function buscarChamado(codigo){
     return new Promise((aceito, rejeitado)=>{
 
@@ -181,6 +205,7 @@ function excluirChamado(id) {
 module.exports = {
     meusChamados,
     buscarTodos,
+    listChamados,
     buscarChamado,
     cadastraChamado,
     alteraChamado,

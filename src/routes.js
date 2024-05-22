@@ -11,6 +11,7 @@ const cargoController = require('./controllers/cargoController');
 const userController = require('./controllers/userController');
 const comentarioController = require('./controllers/comentarioController');
 const categoriaController = require('./controllers/categoriaController');
+const dashboardController = require('./controllers/dashboardController');
 
 //Rotas
 
@@ -22,6 +23,7 @@ router.use(validarToken);
 
 router.get('/meusChamados', chamadoController.meusChamados);
 router.get('/chamados', chamadoController.buscarTodos);
+router.get('/chamados/list', chamadoController.listChamados);
 router.get('/chamado/:id', chamadoController.buscarChamado);
 router.post('/chamado', chamadoController.cadastraChamado);
 router.put('/chamado/:id', chamadoController.alteraChamado);
@@ -62,5 +64,9 @@ router.post('/user', userController.cadastraUser);
 router.put('/user/:id', userController.alteraUser);
 router.put('/userAtivo/:id', userController.ativaInativa);
 router.delete('/user/:id', userController.excluirUser);
+
+router.get('/dashboard/chamadosCategoria', dashboardController.chamadosCategorias);
+router.get('/dashboard/chamadosSetor', dashboardController.chamadosSetor);
+router.get('/dashboard/abertosFechados', dashboardController.abertosFechados);
 
 module.exports = router;

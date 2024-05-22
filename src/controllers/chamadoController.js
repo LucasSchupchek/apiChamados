@@ -100,6 +100,43 @@ async function buscarTodos(req, res){
     res.json(json);
 };
 
+async function listChamados(req, res){
+    let json = {error: '', result:[]};
+    const page = req.query.page || 1; // Página atual (padrão: 1)
+    const limit = req.query.limit || 20; // Limite de itens por página (padrão: 20)
+
+    let chamados = await chamadoService.buscarTodos(page, limit);
+
+    // Criar um mapa para agrupar os chamados pelo ID
+    const chamadosMap = new Map();
+    chamados.forEach(chamado => {
+        if (!chamadosMap.has(chamado.id)) {
+            let responsavel = `${chamado.nome_responsavel}  ${chamado.sobrenome_responsavel}`
+            if(chamado.nome_responsavel == null){
+                responsavel = "";
+            }
+
+            chamadosMap.set(chamado.id, {
+                id: chamado.id,
+                titulo: chamado.titulo,
+                descricao: chamado.descricao,
+                status: chamado.status_chamado,
+                data_cadastro: formatarData(chamado.data_cadastro),
+                data_update: formatarData(chamado.data_update),
+                data_fechamento: formatarData(chamado.data_fechamento)
+            });
+        }
+
+    });
+
+    // Adiciona os valores do mapa ao resultado final
+    for (const chamado of chamadosMap.values()) {
+        json.result.push(chamado);
+    }
+
+    res.json(json);
+};
+
 async function buscarChamado(req, res){
     let json = {error: '', result:{}};
 
@@ -264,6 +301,7 @@ async function excluirChamado(req, res){
 module.exports = {
     meusChamados,
     buscarTodos,
+    listChamados,
     buscarChamado,
     cadastraChamado,
     alteraChamado,

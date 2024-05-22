@@ -1,0 +1,96 @@
+const db = require('../config/db');
+
+function chamadosCategorias(data_inicial, data_final) {
+    return new Promise((aceito, rejeitado) => {
+        db.query(
+            `SELECT 
+                c.id AS id_categoria,
+                c.descricao AS descricao_categoria,
+                c.color AS cor_categoria,
+                COUNT(ch.id) AS quantidade_chamados
+            FROM 
+                dbapichamados.categoria c
+            INNER JOIN 
+                dbapichamados.chamados ch ON c.id = ch.id_categoria
+            WHERE 
+                ch.data_cadastro BETWEEN ? AND ?
+            GROUP BY 
+                c.id, c.descricao
+            HAVING 
+                COUNT(ch.id) > 0;`,
+            [data_inicial, data_final],
+            (error, results) => {
+                if (error) {
+                    rejeitado(error);
+                    return;
+                }
+                aceito(results);
+            }
+        );
+    });
+}
+
+function chamadosSetor(data_inicial, data_final) {
+    return new Promise((aceito, rejeitado) => {
+        db.query(
+            `SELECT 
+                s.id AS id_setor,
+                s.descricao AS descricao_setor,
+                COUNT(ch.id) AS quantidade_chamados
+            FROM 
+                dbapichamados.setor s
+            INNER JOIN 
+                dbapichamados.users u ON s.id = u.id_setor
+            INNER JOIN 
+                dbapichamados.chamados ch ON u.id = ch.id_usuario
+            WHERE 
+                ch.data_cadastro BETWEEN ? AND ?
+            GROUP BY 
+                s.id, s.descricao
+            HAVING 
+                COUNT(ch.id) > 0;`,
+            [data_inicial, data_final],
+            (error, results) => {
+                if (error) {
+                    rejeitado(error);
+                    return;
+                }
+                aceito(results);
+            }
+        );
+    });
+}
+
+function abertosFechados(data_inicial, data_final) {
+    return new Promise((aceito, rejeitado) => {
+        db.query(
+            `SELECT 
+            CASE 
+                WHEN status_chamado IN ('Fechado', 'Rejeitado') THEN 'Fechado'
+                ELSE 'Aberto'
+            END AS status,
+            COUNT(*) AS total
+        FROM 
+            chamados
+        GROUP BY 
+            CASE 
+                WHEN status_chamado IN ('Fechado', 'Rejeitado') THEN 'Fechado'
+                ELSE 'Aberto'
+            END;`,
+            (error, results) => {
+                if (error) {
+                    rejeitado(error);
+                    return;
+                }
+                aceito(results);
+            }
+        );
+    });
+}
+
+
+module.exports = {
+    chamadosCategorias,
+    chamadosSetor,
+    abertosFechados
+};

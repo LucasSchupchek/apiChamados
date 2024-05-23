@@ -65,18 +65,20 @@ function abertosFechados(data_inicial, data_final) {
     return new Promise((aceito, rejeitado) => {
         db.query(
             `SELECT 
-            CASE 
-                WHEN status_chamado IN ('Fechado', 'Rejeitado') THEN 'Fechado'
-                ELSE 'Aberto'
-            END AS status,
-            COUNT(*) AS total
-        FROM 
-            chamados
-        GROUP BY 
-            CASE 
-                WHEN status_chamado IN ('Fechado', 'Rejeitado') THEN 'Fechado'
-                ELSE 'Aberto'
-            END;`,
+                CASE 
+                    WHEN status_chamado IN ('Em andamento', 'Pendente', 'Aguardando Feedback') THEN 'Em andamento'
+                    WHEN status_chamado IN ('Fechado', 'Rejeitado') THEN 'Fechado'
+                    ELSE 'Aberto'
+                END AS status,
+                COUNT(*) AS total
+            FROM 
+                chamados
+            GROUP BY 
+                CASE 
+                    WHEN status_chamado IN ('Em andamento', 'Pendente', 'Aguardando Feedback') THEN 'Em andamento'
+                    WHEN status_chamado IN ('Fechado', 'Rejeitado') THEN 'Fechado'
+                    ELSE 'Aberto'
+                END;`,
             (error, results) => {
                 if (error) {
                     rejeitado(error);

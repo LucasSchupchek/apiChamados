@@ -19,6 +19,7 @@ async function login(req, res){
                     token,
                     expiresIn: 3000,
                     user: {
+                      id: login.id,
                       nome: login.nome,
                       sobrenome: login.sobrenome,
                       permission: login.nivel_acesso

@@ -79,7 +79,7 @@ function listChamados(page, limit) {
                     chamados.data_fechamento
                 FROM 
                     chamados 
-                ORDER BY data_cadastro DESC
+                ORDER BY chamados.data_cadastro DESC
                 LIMIT ${limit} OFFSET ${offset}`, (error, results) => {
             if (error) {
                 rejeitado(error);
@@ -88,15 +88,38 @@ function listChamados(page, limit) {
             aceito(results);
         });
     });
-};
+}
 
 function buscarChamado(codigo){
     return new Promise((aceito, rejeitado)=>{
 
-        db.query(`select * from chamados where id = ${codigo}`, (error, results)=>{
+        db.query(`SELECT
+        chamados.id,
+        chamados.titulo,
+        chamados.descricao,
+        chamados.status_chamado,
+        chamados.data_cadastro,
+        chamados.data_update,
+        chamados.data_fechamento,
+        (select users.nome from users where users.id = chamados.id_usuario) as nome_usuario,
+        (select users.sobrenome from users where users.id = chamados.id_usuario) as sobrenome_usuario,
+        (select users.email from users where users.id = chamados.id_usuario) as email_usuario,
+        (select setor.descricao from users inner join setor on setor.id = users.id_setor where users.id = chamados.id_usuario) as setor_usuario,
+        chamados.id_responsavel,
+        users.nome as nome_responsavel,
+        users.sobrenome as sobrenome_responsavel,
+        users.email as email_responsavel,
+        categoria.descricao as descricao_categoria,
+        anexos_chamados.path_anexo
+    FROM 
+        chamados left join 
+        categoria  on chamados.id_categoria = categoria.id 
+        left join anexos_chamados on anexos_chamados.id_chamado = chamados.id
+        left join users on chamados.id_responsavel = users.id
+    WHERE chamados.id = ${codigo}`, (error, results)=>{
             if(error){rejeitado(error); return};
             if(results.length > 0){
-                aceito(results[0]);
+                aceito(results);
             }else{
                 aceito(false)
             }

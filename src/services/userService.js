@@ -35,16 +35,34 @@ async function buscarTodos(page, limit){
 function buscarUser(codigo){
     return new Promise((aceito, rejeitado)=>{
 
-        db.query(`select * from users where id = ${codigo} LIMIT ${limit} OFFSET ${offset}`, (error, results)=>{
-            if(error){rejeitado(error); return};
-            if(results.length > 0){
-                aceito(results[0]);
-            }else{
-                aceito(false)
-            }
+        db.query(`select
+                    u.id,
+                    u.nome,
+                    u.sobrenome,
+                    u.email,
+                    u.username,
+                    u.id_setor,
+                    s.descricao as setor,
+                    u.id_cargo,
+                    c.descricao as cargo,
+                    u.nivel_acesso,
+                    u.ativo,
+                    u.path_avatar,
+                    u.data_cadastro
+                from
+                users u inner join setor s on u.id_setor = s.id
+                inner join cargo c on u.id_cargo = c.id
+                where u.id = ${codigo};`,
+            (error, results)=>{
+                    if(error){rejeitado(error); return};
+                    if(results.length > 0){
+                        aceito(results[0]);
+                    }else{
+                        aceito(false)
+                    }
+                });
         });
-    });
-}
+    }
 
 function cadastraUser(nome, sobrenome, email, username, password, setor, cargo, acesso) {
     const data_cadastro = datas.ajustarData(datas.obterDataAtualFormatada());

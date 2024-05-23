@@ -75,9 +75,10 @@ alter table setor add ativo boolean after localizacao;
 alter table cargo add ativo boolean after descricao;
 alter table categoria add color varchar(50) after descricao;
 alter table categoria add ativo boolean after color;
+alter table users add path_avatar varchar(255) after ativo;
 
 use dbapichamados;
-select * from categoria;
+select * from users;
 
 select 
                         users.nome,

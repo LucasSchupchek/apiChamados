@@ -32,6 +32,19 @@ async function buscarTodos(page, limit){
     });
 };
 
+async function responsaveis(){
+    return new Promise((aceito, rejeitado)=>{
+            db.query(`select
+                        users.id, 
+                        users.nome,
+                        users.sobrenome
+                    from users`, (error, results)=>{
+                if(error){rejeitado(error); return;}
+                aceito({ results });
+            });
+        });
+};
+
 function buscarUser(codigo){
     return new Promise((aceito, rejeitado)=>{
 
@@ -131,6 +144,7 @@ function excluirUser(id) {
 
 module.exports = {
     buscarTodos,
+    responsaveis,
     buscarUser,
     cadastraUser,
     alteraUser,

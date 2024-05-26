@@ -55,9 +55,40 @@ async function abertosFechados(req, res) {
     let json = { error: '', result: {} };
     try {
         const dashboard = await dashboardService.abertosFechados();
-        if (dashboard && dashboard.length > 0) {
-            json.result = dashboard;
-        }
+
+        // Garantir que todos os status estejam no resultado
+        const allStatuses = ['Aberto', 'Em andamento', 'Fechado'];
+        const result = {};
+
+        allStatuses.forEach(status => {
+            const found = dashboard.find(item => item.status === status);
+            result[status] = found ? found.total : 0;
+        });
+
+        json.result = result;
+        res.json(json);
+        
+    } catch (error) {
+        json.error = 'Erro ao buscar dados do dashboard';
+        res.status(500).json(json);
+    }
+}
+
+async function abertosFechadosUsuario(req, res) {
+    let json = { error: '', result: {} };
+    const id_usuario = req.query.id_usuario;
+    try {
+        const dashboard = await dashboardService.abertosFechadosUsuario(id_usuario);
+        // Garantir que todos os status estejam no resultado
+        const allStatuses = ['Aberto', 'Em andamento', 'Fechado'];
+        const result = {};
+
+        allStatuses.forEach(status => {
+            const found = dashboard.find(item => item.status === status);
+            result[status] = found ? found.total : 0;
+        });
+
+        json.result = result;
         res.json(json);
         
     } catch (error) {
@@ -69,5 +100,6 @@ async function abertosFechados(req, res) {
 module.exports = {
     chamadosCategorias,
     chamadosSetor,
-    abertosFechados
+    abertosFechados,
+    abertosFechadosUsuario
 };

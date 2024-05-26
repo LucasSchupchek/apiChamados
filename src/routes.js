@@ -10,6 +10,7 @@ const setorController = require('./controllers/setorContoller');
 const cargoController = require('./controllers/cargoController');
 const userController = require('./controllers/userController');
 const comentarioController = require('./controllers/comentarioController');
+const chatController = require('./controllers/chatController');
 const categoriaController = require('./controllers/categoriaController');
 const dashboardController = require('./controllers/dashboardController');
 
@@ -44,6 +45,8 @@ router.post('/comentario', comentarioController.cadastraComentario);
 router.put('/comentario/:id', comentarioController.alteraComentario);
 router.delete('/comentario/:id', comentarioController.excluirComentario);
 
+router.get('/chat', chatController.getChatMessages);
+
 router.get('/setores', setorController.buscarTodos);
 router.get('/setor/:id', setorController.buscarSetor);
 router.post('/setor', setorController.cadastraSetor);
@@ -59,6 +62,7 @@ router.put('/cargoAtivo/:id', cargoController.ativaInativa);
 router.delete('/cargo/:id', cargoController.excluirCargo);
 
 router.get('/users', userController.buscarTodos);
+router.get('/users/responsaveis', userController.responsaveis);
 router.get('/user/:id', userController.buscarUser);
 router.post('/user', userController.cadastraUser);
 router.put('/user/:id', userController.alteraUser);
@@ -68,5 +72,6 @@ router.delete('/user/:id', userController.excluirUser);
 router.get('/dashboard/chamadosCategoria', dashboardController.chamadosCategorias);
 router.get('/dashboard/chamadosSetor', dashboardController.chamadosSetor);
 router.get('/dashboard/abertosFechados', dashboardController.abertosFechados);
+router.get('/dashboard/abertosFechadosUsuario', dashboardController.abertosFechadosUsuario);
 
 module.exports = router;

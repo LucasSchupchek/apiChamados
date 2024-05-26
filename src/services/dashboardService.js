@@ -61,8 +61,8 @@ function chamadosSetor(data_inicial, data_final) {
     });
 }
 
-function abertosFechados(data_inicial, data_final) {
-    return new Promise((aceito, rejeitado) => {
+function abertosFechados() {
+    return new Promise((resolve, reject) => {
         db.query(
             `SELECT 
                 CASE 
@@ -81,18 +81,49 @@ function abertosFechados(data_inicial, data_final) {
                 END;`,
             (error, results) => {
                 if (error) {
-                    rejeitado(error);
+                    reject(error);
                     return;
                 }
-                aceito(results);
+                resolve(results);
             }
         );
     });
 }
 
+function abertosFechadosUsuario(id_usuario) {
+    return new Promise((resolve, reject) => {
+        db.query(
+            `SELECT 
+                CASE 
+                    WHEN status_chamado IN ('Em andamento', 'Pendente', 'Aguardando Feedback') THEN 'Em andamento'
+                    WHEN status_chamado IN ('Fechado', 'Rejeitado') THEN 'Fechado'
+                    ELSE 'Aberto'
+                END AS status,
+                COUNT(*) AS total
+            FROM 
+                chamados
+            WHERE
+                id_usuario = ${id_usuario}
+            GROUP BY 
+                CASE 
+                    WHEN status_chamado IN ('Em andamento', 'Pendente', 'Aguardando Feedback') THEN 'Em andamento'
+                    WHEN status_chamado IN ('Fechado', 'Rejeitado') THEN 'Fechado'
+                    ELSE 'Aberto'
+                END;`,
+            (error, results) => {
+                if (error) {
+                    reject(error);
+                    return;
+                }
+                resolve(results);
+            }
+        );
+    });
+}
 
 module.exports = {
     chamadosCategorias,
     chamadosSetor,
-    abertosFechados
+    abertosFechados,
+    abertosFechadosUsuario
 };

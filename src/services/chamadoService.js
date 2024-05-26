@@ -34,10 +34,9 @@ function meusChamados(userId, page, limit){
     });
 };
 
-function buscarTodos(page, limit){
+function buscarTodos(page, limit, filtroAvancado = {}, dataInicial = null, dataFinal = null) {
     const offset = (page - 1) * limit;
-    return new Promise((aceito, rejeitado)=>{
-        db.query(`SELECT
+    let query = `SELECT
                     chamados.id,
                     chamados.titulo,
                     chamados.descricao,
@@ -58,13 +57,46 @@ function buscarTodos(page, limit){
                     chamados left join 
                     categoria  on chamados.id_categoria = categoria.id 
                     left join anexos_chamados on anexos_chamados.id_chamado = chamados.id
-                    left join users on chamados.id_responsavel = users.id  
-                LIMIT ${limit} OFFSET ${offset}`, (error, results)=>{
-            if(error){rejeitado(error); return}
+                    left join users on chamados.id_responsavel = users.id`;
+
+    // Condições de filtro avançado
+    const whereConditions = [];
+    if (filtroAvancado.categoria) {
+        whereConditions.push(`categoria.descricao = '${filtroAvancado.categoria}'`);
+    }
+    if (filtroAvancado.responsavel) {
+        whereConditions.push(`users.nome = '${filtroAvancado.responsavel}'`);
+    }
+    if (filtroAvancado.status) {
+        whereConditions.push(`chamados.status_chamado = '${filtroAvancado.status}'`);
+    }
+
+    // Condições de datas
+    if (dataInicial) {
+        whereConditions.push(`chamados.data_cadastro >= '${dataInicial}'`);
+    }
+    if (dataFinal) {
+        whereConditions.push(`chamados.data_cadastro <= '${dataFinal}'`);
+    }
+
+    // Adiciona as condições de filtro avançado à consulta, se existirem
+    if (whereConditions.length > 0) {
+        const whereClause = ' WHERE ' + whereConditions.join(' AND ');
+        query += whereClause;
+    }
+
+    query += ` LIMIT ${limit} OFFSET ${offset}`;
+
+    return new Promise((aceito, rejeitado) => {
+        db.query(query, (error, results) => {
+            if (error) {
+                rejeitado(error);
+                return;
+            }
             aceito(results);
         });
     });
-};
+}
 
 function listChamados(page, limit) {
     const offset = (page - 1) * limit;

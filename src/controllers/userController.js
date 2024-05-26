@@ -18,6 +18,20 @@ async function buscarTodos(req, res){
     }
 };
 
+async function responsaveis(req, res){
+    let json = {error: '', result:{ data: []}};
+
+    try {
+        const { results, totalPages } = await userService.responsaveis();
+        json.result.data = results;
+        res.json(json);
+    } catch (error) {
+        console.error('Erro ao buscar usuários:', error);
+        json.error = 'Erro interno ao buscar usuários';
+        res.status(500).json(json);
+    }
+};
+
 async function buscarUser(req, res){
     let json = {error: '', result:{}};
 
@@ -97,6 +111,7 @@ async function excluirUser(req, res){
 }
 
 module.exports = {
+    responsaveis,
     buscarTodos,
     buscarUser,
     cadastraUser,

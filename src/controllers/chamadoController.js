@@ -53,12 +53,19 @@ async function meusChamados(req, res){
     res.json(json);
 };
 
-async function buscarTodos(req, res){
-    let json = {error: '', result:[]};
+async function buscarTodos(req, res) {
+    let json = { error: '', result: [] };
     const page = req.query.page || 1; // Página atual (padrão: 1)
     const limit = req.query.limit || 20; // Limite de itens por página (padrão: 20)
+    const filtroAvancado = {
+        categoria: req.query.categoria,
+        responsavel: req.query.responsavel,
+        status: req.query.status
+    };
+    const dataInicial = req.query.dataInicial;
+    const dataFinal = req.query.dataFinal;
 
-    let chamados = await chamadoService.buscarTodos(page, limit);
+    let chamados = await chamadoService.buscarTodos(page, limit, filtroAvancado, dataInicial, dataFinal);
 
     // Criar um mapa para agrupar os chamados pelo ID
     const chamadosMap = new Map();
@@ -80,6 +87,7 @@ async function buscarTodos(req, res){
                 descricao_categoria: chamado.descricao_categoria,
                 usuario: `${chamado.nome_usuario} ${chamado.sobrenome_usuario}`,
                 email_usuario: chamado.email_usuario,
+                id_responsavel: chamado?.id_responsavel,
                 email_responsavel: chamado?.email_responsavel,
                 setor_usuario: chamado.setor_usuario,
                 responsavel: responsavel,
@@ -168,6 +176,7 @@ async function buscarChamado(req, res){
                 data_fechamento: formatarData(chamado.data_fechamento),
                 descricao_categoria: chamado.descricao_categoria,
                 usuario: `${chamado.nome_usuario} ${chamado.sobrenome_usuario}`,
+                id_responsavel: chamado?.id_responsavel,
                 email_usuario: chamado.email_usuario,
                 email_responsavel: chamado?.email_responsavel,
                 setor_usuario: chamado.setor_usuario,

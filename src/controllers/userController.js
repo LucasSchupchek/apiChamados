@@ -1,5 +1,8 @@
 const userService = require('../services/userService');
 const crypto = require('crypto');
+const path = require('path');
+const fs = require('fs');
+const s3Service = require('../config/s3Storage');
 
 async function buscarTodos(req, res){
     let json = {error: '', result:{ data: [], totalPages: 0 }};
@@ -51,6 +54,7 @@ async function cadastraUser(req, res){
 
     const { nome, sobrenome, email, password, setor, cargo, acesso } = req.body;
     const username = email; // assumindo que o username é o email
+    let profile_path = null;
 
     // Verificação de campos obrigatórios
     if (!nome || !sobrenome || !email || !username || !password || !setor || !cargo || !acesso) {
@@ -58,8 +62,38 @@ async function cadastraUser(req, res){
         return res.status(400).json(json); // Retorna um erro 400 com a mensagem
     }
 
+    console.log(req)
+    if (req.files && req.files.length > 0) {
+        for (const file of req.files) {
+            try {
+                // Gera um nome único baseado no timestamp atual
+                const timestamp = Date.now();
+                const extensao = path.extname(file.originalname);
+                const nomeArquivo = `${timestamp}${extensao}`;
+                // const filePath = path.resolve(__dirname, './uploads', nomeArquivo);
+                
+                // Obtém o tipo de conteúdo com base na extensão do arquivo
+                const contentType = getContentType(extensao);
+                
+                // Upload do arquivo para o Amazon S3
+                const uploadedFile = await s3Service.uploadFile(file.path, process.env.AWS_BUCKET_NAME_PROFILE, nomeArquivo, {
+                    ContentType: contentType
+                });
+                // Adiciona o caminho do arquivo aos anexos
+                profile_path = uploadedFile.Location;
+
+                // Remover o arquivo temporário após o upload
+                fs.unlinkSync(file.path);
+            } catch (error) {
+                console.error('Erro ao fazer upload do arquivo:', error);
+                // json.error = 'Erro ao fazer upload do arquivo';
+                // return res.json(json);
+            }
+        }
+    }
+
     try {
-        const userId = await userService.cadastraUser(nome, sobrenome, email, username, password, setor, cargo, acesso);
+        const userId = await userService.cadastraUser(nome, sobrenome, email, username, password, setor, cargo, acesso, profile_path);
         json.result = userId;
         res.json(json);
     } catch (error) {
@@ -69,16 +103,67 @@ async function cadastraUser(req, res){
     }
 }
 
+// Função para obter o tipo de conteúdo com base na extensão do arquivo
+function getContentType(extensao) {
+    switch (extensao.toLowerCase()) {
+        case '.jpg':
+        case '.jpeg':
+            return 'image/jpeg';
+        case '.png':
+            return 'image/png';
+        case '.gif':
+            return 'image/gif';
+        case '.pdf':
+            return 'application/pdf';
+        case '.doc':
+            return 'application/msword';
+        case '.docx':
+            return 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+        // Adicione mais casos conforme necessário para outros tipos de arquivos
+        default:
+            return 'application/octet-stream'; // Tipo de conteúdo genérico
+    }
+}
+
 async function alteraUser(req, res){
     let json = {error: '', result:{}};
 
     const id = req.params.id;
-
+    let profile_path = null;
     const { nome, sobrenome, email, username, setor, cargo, nivel_acesso } = req.body;
     console.log('campossss '+ nome, sobrenome, email, username, setor, cargo, nivel_acesso)
 
+    if (req.files && req.files.length > 0) {
+        for (const file of req.files) {
+            try {
+                // Gera um nome único baseado no timestamp atual
+                const timestamp = Date.now();
+                const extensao = path.extname(file.originalname);
+                const nomeArquivo = `${timestamp}${extensao}`;
+                // const filePath = path.resolve(__dirname, './uploads', nomeArquivo);
+                
+                // Obtém o tipo de conteúdo com base na extensão do arquivo
+                const contentType = getContentType(extensao);
+                
+                // Upload do arquivo para o Amazon S3
+                const uploadedFile = await s3Service.uploadFile(file.path, process.env.AWS_BUCKET_NAME_PROFILE, nomeArquivo, {
+                    ContentType: contentType
+                });
+                // Adiciona o caminho do arquivo aos anexos
+                profile_path = uploadedFile.Location;
+
+                // Remover o arquivo temporário após o upload
+                fs.unlinkSync(file.path);
+            } catch (error) {
+                console.error('Erro ao fazer upload do arquivo:', error);
+                // json.error = 'Erro ao fazer upload do arquivo';
+                // return res.json(json);
+            }
+        }
+    }
+
     try {
-        const updatedUser = await userService.alteraUser(id, nome, sobrenome, email, username, setor, cargo, nivel_acesso);
+        const updatedUser = await userService.alteraUser(id, nome, sobrenome, email, username, setor, cargo, nivel_acesso, profile_path);
         json.result = updatedUser;
         res.json(json);
     } catch (error) {

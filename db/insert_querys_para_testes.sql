@@ -123,3 +123,6 @@ select * from users;
     cargo.descricao as cargo
 from users inner join setor on users.id_setor = setor.id
 inner join cargo on users.id_cargo = cargo.id;
+
+use dbapichamados;
+select * from users;

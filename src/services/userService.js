@@ -21,6 +21,7 @@ async function buscarTodos(page, limit){
                         users.username,
                         users.nivel_acesso,
                         users.ativo,
+                        users.path_avatar,
                         setor.descricao as setor,
                         cargo.descricao as cargo
                     from users inner join setor on users.id_setor = setor.id
@@ -77,16 +78,18 @@ function buscarUser(codigo){
         });
     }
 
-function cadastraUser(nome, sobrenome, email, username, password, setor, cargo, acesso) {
+function cadastraUser(nome, sobrenome, email, username, password, setor, cargo, acesso, profile_path) {
     const data_cadastro = datas.ajustarData(datas.obterDataAtualFormatada());
+    console.log(profile_path)
     return new Promise((aceito, rejeitado) => {
-        db.query(`insert into users(nome, sobrenome, email, username, password_user, id_setor, id_cargo, nivel_acesso, ativo, data_cadastro) 
-        values('${nome}', '${sobrenome}', '${email}','${username}', '${password}', ${setor}, ${cargo}, '${acesso}', '1','${data_cadastro}');`, 
+        db.query(`insert into users(nome, sobrenome, email, username, password_user, id_setor, id_cargo, nivel_acesso, ativo, path_avatar, data_cadastro) 
+        values('${nome}', '${sobrenome}', '${email}','${username}', '${password}', ${setor}, ${cargo}, '${acesso}', '1', '${profile_path}','${data_cadastro}');`, 
             (error, results) => {
                 if (error) {
                     rejeitado(error);
                 } else {
                     const userId = results.insertId; // Obtém o ID do user inserido
+                    console.log(results)
                     aceito({ id: userId, nome, sobrenome, email, username, password, setor, cargo, acesso, data_cadastro });
                 }
             }
@@ -94,10 +97,10 @@ function cadastraUser(nome, sobrenome, email, username, password, setor, cargo, 
     });
 }
 
-function alteraUser(id, nome, sobrenome, email, username, setor, cargo, nivel_acesso) {
+function alteraUser(id, nome, sobrenome, email, username, setor, cargo, nivel_acesso, profile_path) {
     return new Promise((aceito, rejeitado) => {
         const data_update = datas.ajustarData(datas.obterDataAtualFormatada());
-        db.query(`update users set nome = '${nome}', sobrenome = '${sobrenome}', email = '${email}', username = '${username}', id_setor = ${setor}, id_cargo = ${cargo}, nivel_acesso = '${nivel_acesso}' where id = '${id}';`, 
+        db.query(`update users set nome = '${nome}', sobrenome = '${sobrenome}', email = '${email}', username = '${username}', id_setor = ${setor}, id_cargo = ${cargo}, nivel_acesso = '${nivel_acesso}', path_avatar = '${profile_path}' where id = '${id}';`, 
             (error, results) => {
                 if (error) {
                     rejeitado(error);

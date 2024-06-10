@@ -25,7 +25,7 @@ function buscarSetor(codigo){
 
 function cadastraSetor(descricao, localizacao) {
     return new Promise((aceito, rejeitado) => {
-        db.query(`insert into setor(descricao, localizacao) values('${descricao}', '${localizacao});`, 
+        db.query(`insert into setor(descricao, localizacao, ativo) values('${descricao}', '${localizacao}', 1);`, 
             (error, results) => {
                 if (error) {
                     rejeitado(error);

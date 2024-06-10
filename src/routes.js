@@ -66,8 +66,11 @@ router.get('/users/responsaveis', userController.responsaveis);
 router.get('/user/:id', userController.buscarUser);
 router.post('/user', userController.cadastraUser);
 router.put('/user/:id', userController.alteraUser);
+router.put('/user/:id/profile', userController.alteraProfile);
 router.put('/userAtivo/:id', userController.ativaInativa);
 router.delete('/user/:id', userController.excluirUser);
+
+router.put('/user/:id/password', userController.alteraSenha);
 
 router.get('/dashboard/chamadosCategoria', dashboardController.chamadosCategorias);
 router.get('/dashboard/chamadosSetor', dashboardController.chamadosSetor);

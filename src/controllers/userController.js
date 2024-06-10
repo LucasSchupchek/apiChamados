@@ -3,16 +3,15 @@ const crypto = require('crypto');
 const path = require('path');
 const fs = require('fs');
 const s3Service = require('../config/s3Storage');
+const bcrypt = require('bcrypt');
 
 async function buscarTodos(req, res){
-    let json = {error: '', result:{ data: [], totalPages: 0 }};
-    const page = req.query.page || 1; // Página atual (padrão: 1)
-    const limit = req.query.limit || 20; // Limite de itens por página (padrão: 20)
+    let json = {error: '', result:{ data: [], totalItems: 0 }};
 
     try {
-        const { results, totalPages } = await userService.buscarTodos(page, limit);
-        json.result.data = results;
-        json.result.totalPages = totalPages;
+        const users = await userService.buscarTodos();
+        json.result.data = users.results;
+        json.result.totalItems = users.length;
         res.json(json);
     } catch (error) {
         console.error('Erro ao buscar usuários:', error);
@@ -49,12 +48,11 @@ async function buscarUser(req, res){
     
 };
 
-async function cadastraUser(req, res){
+async function cadastraUser(req, res) {
     let json = { error: '', result: {} };
 
-    const { nome, sobrenome, email, password, setor, cargo, acesso } = req.body;
-    const username = email; // assumindo que o username é o email
-    let profile_path = null;
+    const { nome, sobrenome, email, username, password, setor, cargo, acesso } = req.body;
+    let profile_path = 'https://arquiveschamados.s3.sa-east-1.amazonaws.com/profile_photos/1_g09N-jl7JtVjVZGcd-vL2g.jpg';
 
     // Verificação de campos obrigatórios
     if (!nome || !sobrenome || !email || !username || !password || !setor || !cargo || !acesso) {
@@ -62,7 +60,7 @@ async function cadastraUser(req, res){
         return res.status(400).json(json); // Retorna um erro 400 com a mensagem
     }
 
-    console.log(req)
+    console.log(req);
     if (req.files && req.files.length > 0) {
         for (const file of req.files) {
             try {
@@ -70,7 +68,6 @@ async function cadastraUser(req, res){
                 const timestamp = Date.now();
                 const extensao = path.extname(file.originalname);
                 const nomeArquivo = `${timestamp}${extensao}`;
-                // const filePath = path.resolve(__dirname, './uploads', nomeArquivo);
                 
                 // Obtém o tipo de conteúdo com base na extensão do arquivo
                 const contentType = getContentType(extensao);
@@ -93,13 +90,59 @@ async function cadastraUser(req, res){
     }
 
     try {
-        const userId = await userService.cadastraUser(nome, sobrenome, email, username, password, setor, cargo, acesso, profile_path);
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
+
+        const userId = await userService.cadastraUser(nome, sobrenome, email, username, hashedPassword, setor, cargo, acesso, profile_path);
         json.result = userId;
         res.json(json);
     } catch (error) {
         console.error('Erro ao cadastrar usuário:', error);
-        json.error = 'Erro interno ao cadastrar usuário';
-        res.status(500).json(json); // Retorna um erro 500 para erro interno do servidor
+
+        if (error.message === 'Email ou username já cadastrado') {
+            json.error = 'Email ou username já cadastrado';
+            res.status(400).json(json); // Retorna um erro 400 para duplicidade de email ou username
+        } else {
+            json.error = 'Erro interno ao cadastrar usuário';
+            res.status(500).json(json); // Retorna um erro 500 para erro interno do servidor
+        }
+    }
+}
+
+async function alteraSenha(req, res) {
+    let json = {error: '', result:{}};
+
+    const id = req.params.id;
+    const { currentPassword, newPassword } = req.body;
+
+    try {
+        const user = await userService.buscarUser(id);
+
+        if (!user) {
+            json.error = 'Usuário não encontrado';
+            return res.status(404).json(json);
+        }
+
+        // Verifica se a senha atual está correta
+        const isMatch = await bcrypt.compare(currentPassword, user.password_user);
+        if (!isMatch) {
+            json.error = 'Senha atual incorreta';
+            return res.status(400).json(json);
+        }
+
+        // Criptografa a nova senha
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+        // Atualiza a senha no banco de dados
+        await userService.alteraSenha(id, hashedPassword);
+
+        json.result = 'Senha atualizada com sucesso';
+        res.json(json);
+    } catch (error) {
+        console.error('Erro ao alterar a senha:', error);
+        json.error = 'Erro interno ao alterar a senha';
+        res.status(500).json(json);
     }
 }
 
@@ -173,6 +216,54 @@ async function alteraUser(req, res){
     }
 }
 
+async function alteraProfile(req, res){
+    let json = {error: '', result:{}};
+
+    const id = req.params.id;
+    let profile_path = null;
+    const { nome, sobrenome, email } = req.body;
+    console.log('campossss '+ nome, sobrenome, email)
+
+    if (req.files && req.files.length > 0) {
+        for (const file of req.files) {
+            try {
+                // Gera um nome único baseado no timestamp atual
+                const timestamp = Date.now();
+                const extensao = path.extname(file.originalname);
+                const nomeArquivo = `${timestamp}${extensao}`;
+                // const filePath = path.resolve(__dirname, './uploads', nomeArquivo);
+                
+                // Obtém o tipo de conteúdo com base na extensão do arquivo
+                const contentType = getContentType(extensao);
+                
+                // Upload do arquivo para o Amazon S3
+                const uploadedFile = await s3Service.uploadFile(file.path, process.env.AWS_BUCKET_NAME_PROFILE, nomeArquivo, {
+                    ContentType: contentType
+                });
+                // Adiciona o caminho do arquivo aos anexos
+                profile_path = uploadedFile.Location;
+
+                // Remover o arquivo temporário após o upload
+                fs.unlinkSync(file.path);
+            } catch (error) {
+                console.error('Erro ao fazer upload do arquivo:', error);
+                // json.error = 'Erro ao fazer upload do arquivo';
+                // return res.json(json);
+            }
+        }
+    }
+
+    try {
+        const updatedUser = await userService.alteraProfile(id, nome, sobrenome, email, profile_path);
+        json.result = updatedUser;
+        res.json(json);
+    } catch (error) {
+        console.error('Erro ao atualizar usuário:', error);
+        json.error = 'Erro interno ao atualizar usuário';
+        res.status(500).json(json);
+    }
+}
+
 
 async function ativaInativa(req, res){
     let json = {error: '', result:{}};
@@ -202,5 +293,7 @@ module.exports = {
     cadastraUser,
     alteraUser,
     ativaInativa,
-    excluirUser
+    excluirUser,
+    alteraSenha,
+    alteraProfile
 }

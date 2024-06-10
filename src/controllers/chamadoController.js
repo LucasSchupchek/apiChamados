@@ -5,53 +5,71 @@ const s3Service = require('../config/s3Storage');
 const { tokenDecoded } = require('../utils/utils');
 const { formatarData } = require('../utils/utils');
 
-async function meusChamados(req, res){
-    let json = {error: '', result:[]};
+async function meusChamados(req, res) {
+    console.log('meus chamados');
+
+    let json = { error: '', result: [] };
     const userId = tokenDecoded(req).userId;
     const page = req.query.page || 1; // Página atual (padrão: 1)
     const limit = req.query.limit || 20; // Limite de itens por página (padrão: 20)
+    
+    const filtroAvancado = {
+        categoria: req.query.categoria,
+        responsavel: req.query.responsavel,
+        status: req.query.status
+    };
 
-    let chamados = await chamadoService.meusChamados(userId, page, limit);
+    const dataInicial = req.query.dataInicial;
+    const dataFinal = req.query.dataFinal;
 
-    // Criar um mapa para agrupar os chamados pelo ID
-    const chamadosMap = new Map();
-    chamados.forEach(chamado => {
-        if (!chamadosMap.has(chamado.id)) {
-            let responsavel = `${chamado.nome_responsavel}  ${chamado.sobrenome_responsavel}`
-            if(chamado.nome_responsavel == null){
-                responsavel = "";
+    try {
+        let chamados = await chamadoService.meusChamados(userId, page, limit, filtroAvancado, dataInicial, dataFinal);
+
+        // Criar um mapa para agrupar os chamados pelo ID
+        const chamadosMap = new Map();
+        chamados.forEach(chamado => {
+            if (!chamadosMap.has(chamado.id)) {
+                let responsavel = `${chamado.nome_responsavel} ${chamado.sobrenome_responsavel}`;
+                if (chamado.nome_responsavel == null) {
+                    responsavel = "";
+                }
+
+                chamadosMap.set(chamado.id, {
+                    id: chamado.id,
+                    titulo: chamado.titulo,
+                    descricao: chamado.descricao,
+                    status: chamado.status_chamado,
+                    data_cadastro: formatarData(chamado.data_cadastro),
+                    data_update: formatarData(chamado.data_update),
+                    data_fechamento: formatarData(chamado.data_fechamento),
+                    descricao_categoria: chamado.descricao_categoria,
+                    usuario: `${chamado.nome_usuario} ${chamado.sobrenome_usuario}`,
+                    email_usuario: chamado.email_usuario,
+                    email_responsavel: chamado?.email_responsavel,
+                    setor_usuario: chamado.setor_usuario,
+                    responsavel: responsavel,
+                    anexos: []
+                });
             }
+            // Adiciona o anexo ao array de anexos
+            if (chamado.path_anexo) {
+                chamadosMap.get(chamado.id).anexos.push(chamado.path_anexo);
+            }
+        });
 
-            chamadosMap.set(chamado.id, {
-                id: chamado.id,
-                titulo: chamado.titulo,
-                descricao: chamado.descricao,
-                status: chamado.status_chamado,
-                data_cadastro: formatarData(chamado.data_cadastro),
-                data_update: formatarData(chamado.data_update),
-                data_fechamento: formatarData(chamado.data_fechamento),
-                descricao_categoria: chamado.descricao_categoria,
-                usuario: `${chamado.nome_usuario} ${chamado.sobrenome_usuario}`,
-                email_usuario: chamado.email_usuario,
-                email_responsavel: chamado?.email_responsavel,
-                setor_usuario: chamado.setor_usuario,
-                responsavel: responsavel,
-                anexos: []
-            });
+        // Adiciona os valores do mapa ao resultado final
+        for (const chamado of chamadosMap.values()) {
+            json.result.push(chamado);
         }
-        // Adiciona o anexo ao array de anexos
-        if (chamado.path_anexo) {
-            chamadosMap.get(chamado.id).anexos.push(chamado.path_anexo);
-        }
-    });
 
-    // Adiciona os valores do mapa ao resultado final
-    for (const chamado of chamadosMap.values()) {
-        json.result.push(chamado);
+    } catch (error) {
+        json.error = 'Erro ao buscar chamados';
+        console.error(error);
     }
 
     res.json(json);
 };
+
 
 async function buscarTodos(req, res) {
     let json = { error: '', result: [] };
@@ -62,6 +80,9 @@ async function buscarTodos(req, res) {
         responsavel: req.query.responsavel,
         status: req.query.status
     };
+
+    console.log(filtroAvancado)
+
     const dataInicial = req.query.dataInicial;
     const dataFinal = req.query.dataFinal;
 

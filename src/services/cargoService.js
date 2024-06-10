@@ -26,7 +26,7 @@ function buscarCargo(codigo){
 
 function cadastraCargo(descricao) {
     return new Promise((aceito, rejeitado) => {
-        db.query(`insert into cargo(descricao) values('${descricao}');`, 
+        db.query(`insert into cargo(descricao, ativo) values('${descricao}', 1);`, 
             (error, results) => {
                 if (error) {
                     rejeitado(error);

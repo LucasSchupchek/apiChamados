@@ -1,32 +1,47 @@
 const db = require('../config/db');
 const datas = require('../utils/utils');
+const bcrypt = require('bcrypt');
 
-function login(user, password){
-    return new Promise((aceito, rejeitado)=>{
-        db.query(`select * from users where username = '${user}' and password_user = '${password}'`, (error, results)=>{
-            if(error){rejeitado(error); return};
-            if(results.length > 0){
-                const id = results[0].id;
-                const nivel_acesso = results[0].nivel_acesso;
-                const secret = results[0].secret;
-                const nome = results[0].nome;
-                const sobrenome = results[0].sobrenome;
-                aceito({
-                    aceito: true,
-                    id,
-                    nivel_acesso,
-                    secret,
-                    nome,
-                    sobrenome
-                });
-            }else{
-                aceito({
+function login(user, password) {
+    return new Promise((resolve, reject) => {
+        db.query(`SELECT * FROM users WHERE username = ?`, [user], async (error, results) => {
+            if (error) {
+                reject(error);
+                return;
+            }
+            if (results.length > 0) {
+                const storedPassword = results[0].password_user;
+                console.log(storedPassword)
+                console.log(password)
+                const isMatch = bcrypt.compare(password, storedPassword);
+                console.log(isMatch);
+                if (isMatch) {
+                    const id = results[0].id;
+                    const nivel_acesso = results[0].nivel_acesso;
+                    const nome = results[0].nome;
+                    const sobrenome = results[0].sobrenome;
+                    const ProfilePath = results[0].path_avatar;
+                    resolve({
+                        aceito: true,
+                        id,
+                        nivel_acesso,
+                        nome,
+                        sobrenome,
+                        ProfilePath
+                    });
+                } else {
+                    resolve({
+                        aceito: false
+                    });
+                }
+            } else {
+                resolve({
                     aceito: false
-                })
+                });
             }
         });
     });
-};
+}
 
 module.exports = {
     login

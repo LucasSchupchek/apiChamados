@@ -1,18 +1,9 @@
 const db = require('../config/db');
 const datas = require('../utils/utils');
+const bcrypt = require('bcrypt');
 
-async function buscarTodos(page, limit){
-    const offset = (page - 1) * limit;
+async function buscarTodos(){
     return new Promise((aceito, rejeitado)=>{
-        db.query('SELECT COUNT(*) as total FROM users', (error, countResult) => {
-            if (error) {
-                rejeitado(error);
-                return;
-            }
-
-            const total = countResult[0].total;
-            const totalPages = Math.ceil(total / limit);
-
             db.query(`select
                         users.id, 
                         users.nome,
@@ -22,15 +13,16 @@ async function buscarTodos(page, limit){
                         users.nivel_acesso,
                         users.ativo,
                         users.path_avatar,
+                        users.id_setor,
+                        users.id_cargo,
                         setor.descricao as setor,
                         cargo.descricao as cargo
                     from users inner join setor on users.id_setor = setor.id
-                    inner join cargo on users.id_cargo = cargo.id LIMIT ${limit} OFFSET ${offset}`, (error, results)=>{
+                    inner join cargo on users.id_cargo = cargo.id`, (error, results)=>{
                 if(error){rejeitado(error); return;}
-                aceito({ results, totalPages });
+                aceito({ results });
             });
         });
-    });
 };
 
 async function responsaveis(){
@@ -39,7 +31,7 @@ async function responsaveis(){
                         users.id, 
                         users.nome,
                         users.sobrenome
-                    from users`, (error, results)=>{
+                    from users where nivel_acesso <> 'default'`, (error, results)=>{
                 if(error){rejeitado(error); return;}
                 aceito({ results });
             });
@@ -78,24 +70,35 @@ function buscarUser(codigo){
         });
     }
 
-function cadastraUser(nome, sobrenome, email, username, password, setor, cargo, acesso, profile_path) {
-    const data_cadastro = datas.ajustarData(datas.obterDataAtualFormatada());
-    console.log(profile_path)
-    return new Promise((aceito, rejeitado) => {
-        db.query(`insert into users(nome, sobrenome, email, username, password_user, id_setor, id_cargo, nivel_acesso, ativo, path_avatar, data_cadastro) 
-        values('${nome}', '${sobrenome}', '${email}','${username}', '${password}', ${setor}, ${cargo}, '${acesso}', '1', '${profile_path}','${data_cadastro}');`, 
-            (error, results) => {
+    async function cadastraUser(nome, sobrenome, email, username, hashedPassword, setor, cargo, acesso, profile_path) {
+        const data_cadastro = datas.ajustarData(datas.obterDataAtualFormatada());
+        console.log(profile_path);
+    
+        return new Promise((aceito, rejeitado) => {
+            // Verifica se o email ou username já existem
+            db.query(`SELECT COUNT(*) as count FROM users WHERE email = ? OR username = ?`, [email, username], (error, results) => {
                 if (error) {
                     rejeitado(error);
+                } else if (results[0].count > 0) {
+                    rejeitado({ message: 'Email ou username já cadastrado' });
                 } else {
-                    const userId = results.insertId; // Obtém o ID do user inserido
-                    console.log(results)
-                    aceito({ id: userId, nome, sobrenome, email, username, password, setor, cargo, acesso, data_cadastro });
+                    // Se não existir, prossegue com o cadastro
+                    db.query(`INSERT INTO users(nome, sobrenome, email, username, password_user, id_setor, id_cargo, nivel_acesso, ativo, path_avatar, data_cadastro) 
+                              VALUES('${nome}', '${sobrenome}', '${email}', '${username}', '${hashedPassword}', ${setor}, ${cargo}, '${acesso}', '1', '${profile_path}', '${data_cadastro}');`,
+                        (error, results) => {
+                            if (error) {
+                                rejeitado(error);
+                            } else {
+                                const userId = results.insertId; // Obtém o ID do user inserido
+                                console.log(results);
+                                aceito({ id: userId, nome, sobrenome, email, username, setor, cargo, acesso, data_cadastro });
+                            }
+                        }
+                    );
                 }
-            }
-        );
-    });
-}
+            });
+        });
+    }
 
 function alteraUser(id, nome, sobrenome, email, username, setor, cargo, nivel_acesso, profile_path) {
     return new Promise((aceito, rejeitado) => {
@@ -107,6 +110,23 @@ function alteraUser(id, nome, sobrenome, email, username, setor, cargo, nivel_ac
                 } else {
                     aceito({
                         id, nome, sobrenome, email, username, setor, cargo, nivel_acesso
+                    });
+                }
+            }
+        );
+    });
+}
+
+function alteraProfile(id, nome, sobrenome, email, profile_path) {
+    return new Promise((aceito, rejeitado) => {
+        const data_update = datas.ajustarData(datas.obterDataAtualFormatada());
+        db.query(`update users set nome = '${nome}', sobrenome = '${sobrenome}', email = '${email}', path_avatar = '${profile_path}' where id = '${id}';`, 
+            (error, results) => {
+                if (error) {
+                    rejeitado(error);
+                } else {
+                    aceito({
+                        id, nome, sobrenome, email, profile_path
                     });
                 }
             }
@@ -145,6 +165,20 @@ function excluirUser(id) {
     });
 }
 
+function alteraSenha(id, hashedPassword) {
+    return new Promise((aceito, rejeitado) => {
+        db.query(`update users set password_user = '${hashedPassword}' where id = '${id}';`, 
+            (error, results) => {
+                if (error) {
+                    rejeitado(error);
+                } else {
+                    aceito(results);
+                }
+            }
+        );
+    });
+}
+
 module.exports = {
     buscarTodos,
     responsaveis,
@@ -152,5 +186,7 @@ module.exports = {
     cadastraUser,
     alteraUser,
     ativaInativa,
-    excluirUser
+    excluirUser,
+    alteraSenha,
+    alteraProfile
 };

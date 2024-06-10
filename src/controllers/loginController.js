@@ -1,44 +1,45 @@
 const loginService = require('../services/loginService');
 const jwt = require('jsonwebtoken');
  
-async function login(req, res){
-    try{
-        let json = {error: '', result:{}};
+async function login(req, res) {
+  try {
+      let json = { error: '', result: {} };
 
-        const user = req.body.user;
-        const password = req.body.password;
+      const user = req.body.user;
+      const password = req.body.password;
 
-        if(user && password){
-            const login = await loginService.login(user, password); 
-            if(login.aceito == true){
-                console.log("login")
-                const SECRET = process.env.SEGREDO_JWT;
-                const token = jwt.sign({userId: login.id, nivel_acesso: login.nivel_acesso}, SECRET, {expiresIn: 3000});
-                json.result = {
-                    auth: true,
-                    token,
-                    expiresIn: 3000,
-                    user: {
+      if (user && password) {
+          const login = await loginService.login(user, password);
+          if (login.aceito === true) {
+              console.log("login");
+              const SECRET = process.env.SEGREDO_JWT;
+              const token = jwt.sign({ userId: login.id, nivel_acesso: login.nivel_acesso }, SECRET, { expiresIn: 3000 });
+              json.result = {
+                  auth: true,
+                  token,
+                  expiresIn: 3000,
+                  user: {
                       id: login.id,
                       nome: login.nome,
                       sobrenome: login.sobrenome,
                       permission: login.nivel_acesso
-                    }
-                }
-                res.status(200).json(json);
-            }else{
-                json.error =  "usuário ou senha inválido"
-                res.status(401).json(json);
-            }
-        }else{
-            json.error =  "Campos inválidos"
-            res.status(400).json(json);
-        }
-    } catch (error) {
-        console.error("Erro durante o login:", error);
-        res.status(500).json({error: "Erro no serviço, contate o suporte"});
-    }
-};
+                  },
+                  ProfilePath: login.ProfilePath
+              }
+              res.status(200).json(json);
+          } else {
+              json.error = "usuário ou senha inválido";
+              res.status(401).json(json);
+          }
+      } else {
+          json.error = "Campos inválidos";
+          res.status(400).json(json);
+      }
+  } catch (error) {
+      console.error("Erro durante o login:", error);
+      res.status(500).json({ error: "Erro no serviço, contate o suporte" });
+  }
+}
 
 async function verify(req, res){
     // Verificar se o header Authorization está presente na requisição

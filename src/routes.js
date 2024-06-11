@@ -74,6 +74,7 @@ router.put('/user/:id/password', userController.alteraSenha);
 
 router.get('/dashboard/chamadosCategoria', dashboardController.chamadosCategorias);
 router.get('/dashboard/chamadosSetor', dashboardController.chamadosSetor);
+router.get('/dashboard/chamadosTecnicos', dashboardController.chamadosTecnicos);
 router.get('/dashboard/abertosFechados', dashboardController.abertosFechados);
 router.get('/dashboard/abertosFechadosUsuario', dashboardController.abertosFechadosUsuario);
 

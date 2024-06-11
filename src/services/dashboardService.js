@@ -61,6 +61,34 @@ function chamadosSetor(data_inicial, data_final) {
     });
 }
 
+function chamadosTecnicos() {
+    return new Promise((resolve, reject) => {
+        db.query(
+            `SELECT 
+                u.id AS id_usuario,
+                u.nome AS nome_usuario,
+                COUNT(ch.id) AS quantidade_chamados
+            FROM 
+                dbapichamados.users u
+            INNER JOIN 
+                dbapichamados.chamados ch ON u.id = ch.id_responsavel
+            WHERE 
+                u.nivel_acesso != 'default'
+            GROUP BY 
+                u.id, u.nome
+            HAVING 
+                COUNT(ch.id) > 0;`,
+            (error, results) => {
+                if (error) {
+                    reject(error);
+                    return;
+                }
+                resolve(results);
+            }
+        );
+    });
+}
+
 function abertosFechados() {
     return new Promise((resolve, reject) => {
         db.query(
@@ -125,5 +153,6 @@ module.exports = {
     chamadosCategorias,
     chamadosSetor,
     abertosFechados,
-    abertosFechadosUsuario
+    abertosFechadosUsuario,
+    chamadosTecnicos
 };

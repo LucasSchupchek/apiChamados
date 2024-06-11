@@ -51,6 +51,23 @@ async function chamadosSetor(req, res) {
     }
 }
 
+async function chamadosTecnicos(req, res) {
+    let json = { error: '', result: {} };
+
+    try {
+        const dashboard = await dashboardService.chamadosTecnicos();
+        if (dashboard && dashboard.length > 0) {
+            json.result = dashboard;
+        } else {
+            json.result = 'Nenhum dado encontrado.';
+        }
+        res.json(json);
+    } catch (error) {
+        json.error = 'Erro ao buscar dados do dashboard';
+        res.status(500).json(json);
+    }
+}
+
 async function abertosFechados(req, res) {
     let json = { error: '', result: {} };
     try {
@@ -101,5 +118,6 @@ module.exports = {
     chamadosCategorias,
     chamadosSetor,
     abertosFechados,
-    abertosFechadosUsuario
+    abertosFechadosUsuario,
+    chamadosTecnicos
 };

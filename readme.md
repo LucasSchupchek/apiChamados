@@ -1,6 +1,3 @@
-# Let's create a README.md file with the provided content.
-
-readme_content = """
 # API de Chamados
 
 Bem-vindo ao repositório da API de Chamados. Esta API serve como backend para um sistema de gestão de chamados. A seguir, você encontrará instruções sobre como instalar, configurar e executar a API localmente.

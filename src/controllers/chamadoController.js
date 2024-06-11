@@ -6,7 +6,6 @@ const { tokenDecoded } = require('../utils/utils');
 const { formatarData } = require('../utils/utils');
 
 async function meusChamados(req, res) {
-    console.log('meus chamados');
 
     let json = { error: '', result: [] };
     const userId = tokenDecoded(req).userId;
@@ -64,7 +63,6 @@ async function meusChamados(req, res) {
 
     } catch (error) {
         json.error = 'Erro ao buscar chamados';
-        console.error(error);
     }
 
     res.json(json);
@@ -80,8 +78,6 @@ async function buscarTodos(req, res) {
         responsavel: req.query.responsavel,
         status: req.query.status
     };
-
-    console.log(filtroAvancado)
 
     const dataInicial = req.query.dataInicial;
     const dataFinal = req.query.dataFinal;
@@ -165,7 +161,6 @@ async function listChamados(req, res) {
 
         res.json(json);
     } catch (error) {
-        console.error('Erro ao carregar chamados:', error);
         json.error = 'Erro ao carregar chamados';
         res.json(json);
     }
@@ -174,10 +169,8 @@ async function listChamados(req, res) {
 async function buscarChamado(req, res){
     let json = {error: '', result:{}};
 
-    console.log(req)
     const codigo = req.params.id;
     let chamados = await chamadoService.buscarChamado(codigo);
-    console.log(chamados)
     // Criar um mapa para agrupar os chamados pelo ID
     const chamadosMap = new Map();
     chamados.forEach(chamado => {
@@ -226,7 +219,6 @@ async function cadastraChamado(req, res) {
     const status = 'aberto';
     const id_usuario = tokenDecoded(req).userId; //irá ser obtido a partir do jwt token presente no header
     const anexos = [];
-    console.log(categoria)
 
     if (titulo && descricao) {
         // Verifica se há arquivos anexados na requisição
@@ -246,7 +238,6 @@ async function cadastraChamado(req, res) {
                     const uploadedFile = await s3Service.uploadFile(file.path, process.env.AWS_BUCKET_NAME, nomeArquivo, {
                         ContentType: contentType
                     });
-                    console.log(uploadedFile)
                     // Adiciona o caminho do arquivo aos anexos
                     anexos.push(uploadedFile.Location);
 
@@ -263,7 +254,6 @@ async function cadastraChamado(req, res) {
         try {
             // Chama o serviço para cadastrar o chamado com os anexos
             const chamadoId = await chamadoService.cadastraChamado(titulo, descricao, status, id_usuario, categoria, anexos);
-            console.log('Cadastro Chamado' + chamadoId)
             json.result = chamadoId;
             json.result['anexos'] = anexos;
         } catch (error) {

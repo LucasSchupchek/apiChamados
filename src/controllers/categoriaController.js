@@ -17,7 +17,6 @@ async function buscarTodos(req, res){
 async function buscarCategoria(req, res){
     let json = {error: '', result:{}};
 
-    console.log(req)
     const codigo = req.params.id;
     const categoria = await categoriaService.buscarCategoria(codigo);
 
@@ -31,7 +30,7 @@ async function buscarCategoria(req, res){
 
 async function cadastraCategoria(req, res){
     let json = {error: '', result:{}};
-    console.log(req.body)
+
     const descricao = req.body.descricao;
     const color = req.body.cor;
 

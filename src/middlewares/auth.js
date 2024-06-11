@@ -23,8 +23,6 @@ function validarToken(req, res, next) {
         // Verificar se o token é válido
         const decoded = jwt.verify(token, process.env.SEGREDO_JWT);
         
-        console.log(decoded);
-
         // Verificar se o token não expirou
         if (decoded.exp <= Math.floor(Date.now() / 1000)) {
             throw new Error('Token expirado');

@@ -2,7 +2,7 @@ const db = require('../config/db');
 const datas = require('../utils/utils');
 
 function meusChamados(userId, page, limit, filtroAvancado = {}, dataInicial = null, dataFinal = null) {
-    console.log(userId)
+
     const offset = (page - 1) * limit;
     let query = `SELECT
                     chamados.id,
@@ -54,8 +54,6 @@ function meusChamados(userId, page, limit, filtroAvancado = {}, dataInicial = nu
     }
 
     query += ` LIMIT ${limit} OFFSET ${offset}`;
-
-    console.log(query)
 
     return new Promise((aceito, rejeitado) => {
         db.query(query, (error, results) => {
@@ -120,8 +118,6 @@ function buscarTodos(page, limit, filtroAvancado = {}, dataInicial = null, dataF
     }
 
     query += ` LIMIT ${limit} OFFSET ${offset}`;
-
-    console.log(query)
 
     return new Promise((aceito, rejeitado) => {
         db.query(query, (error, results) => {

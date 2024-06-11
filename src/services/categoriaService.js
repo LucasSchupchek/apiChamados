@@ -56,7 +56,7 @@ function alteraCategoria(id, descricao, color) {
 
 function ativaInativa(id, param) {
     let ativo = param == "true" ? 1 : 0;
-    console.log(ativo)
+
     return new Promise((aceito, rejeitado) => {
         db.query(`update categoria set ativo = ${ativo} where id = '${id}';`, 
             (error, results) => {

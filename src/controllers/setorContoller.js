@@ -16,8 +16,6 @@ async function buscarTodos(req, res){
 
 async function buscarSetor(req, res){
     let json = {error: '', result:{}};
-
-    console.log(req)
     const codigo = req.params.id;
     const setor = await setorService.buscarSetor(codigo);
 

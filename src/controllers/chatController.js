@@ -15,7 +15,6 @@ async function getChatMessages(req, res) {
 
         res.json({ messages });
     } catch (error) {
-        console.error('Error fetching chat messages:', error);
         res.status(500).json({ error: 'Internal Server Error' });
     }
 }

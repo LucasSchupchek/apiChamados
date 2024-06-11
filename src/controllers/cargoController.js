@@ -16,7 +16,6 @@ async function buscarTodos(req, res){
 async function buscarCargo(req, res){
     let json = {error: '', result:{}};
 
-    console.log(req)
     const codigo = req.params.id;
     const cargo = await cargoService.buscarCargo(codigo);
 

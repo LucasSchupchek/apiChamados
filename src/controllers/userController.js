@@ -14,7 +14,6 @@ async function buscarTodos(req, res){
         json.result.totalItems = users.length;
         res.json(json);
     } catch (error) {
-        console.error('Erro ao buscar usuários:', error);
         json.error = 'Erro interno ao buscar usuários';
         res.status(500).json(json);
     }
@@ -28,7 +27,6 @@ async function responsaveis(req, res){
         json.result.data = results;
         res.json(json);
     } catch (error) {
-        console.error('Erro ao buscar usuários:', error);
         json.error = 'Erro interno ao buscar usuários';
         res.status(500).json(json);
     }
@@ -60,7 +58,6 @@ async function cadastraUser(req, res) {
         return res.status(400).json(json); // Retorna um erro 400 com a mensagem
     }
 
-    console.log(req);
     if (req.files && req.files.length > 0) {
         for (const file of req.files) {
             try {
@@ -97,7 +94,6 @@ async function cadastraUser(req, res) {
         json.result = userId;
         res.json(json);
     } catch (error) {
-        console.error('Erro ao cadastrar usuário:', error);
 
         if (error.message === 'Email ou username já cadastrado') {
             json.error = 'Email ou username já cadastrado';
@@ -140,7 +136,6 @@ async function alteraSenha(req, res) {
         json.result = 'Senha atualizada com sucesso';
         res.json(json);
     } catch (error) {
-        console.error('Erro ao alterar a senha:', error);
         json.error = 'Erro interno ao alterar a senha';
         res.status(500).json(json);
     }
@@ -174,7 +169,6 @@ async function alteraUser(req, res){
     const id = req.params.id;
     let profile_path = null;
     const { nome, sobrenome, email, username, setor, cargo, nivel_acesso } = req.body;
-    console.log('campossss '+ nome, sobrenome, email, username, setor, cargo, nivel_acesso)
 
     if (req.files && req.files.length > 0) {
         for (const file of req.files) {
@@ -198,7 +192,6 @@ async function alteraUser(req, res){
                 // Remover o arquivo temporário após o upload
                 fs.unlinkSync(file.path);
             } catch (error) {
-                console.error('Erro ao fazer upload do arquivo:', error);
                 // json.error = 'Erro ao fazer upload do arquivo';
                 // return res.json(json);
             }
@@ -210,7 +203,6 @@ async function alteraUser(req, res){
         json.result = updatedUser;
         res.json(json);
     } catch (error) {
-        console.error('Erro ao atualizar usuário:', error);
         json.error = 'Erro interno ao atualizar usuário';
         res.status(500).json(json);
     }
@@ -250,7 +242,6 @@ async function alteraProfile(req, res) {
         json.result = updatedUser;
         res.json(json);
     } catch (error) {
-        console.error('Erro ao atualizar usuário:', error);
         json.error = 'Erro interno ao atualizar usuário';
         res.status(500).json(json);
     }

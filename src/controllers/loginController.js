@@ -14,9 +14,9 @@ async function login(req, res) {
 
       if (user && password) {
           const login = await loginService.login(user, password);
-          console.log(login);
+
           if (login.aceito === true) {
-              console.log("login");
+
               const SECRET = process.env.SEGREDO_JWT;
               const token = jwt.sign({ userId: login.id, nivel_acesso: login.nivel_acesso }, SECRET, { expiresIn: 3000 });
               json.result = {
@@ -41,7 +41,6 @@ async function login(req, res) {
           res.status(400).json(json);
       }
   } catch (error) {
-      console.error("Erro durante o login:", error);
       res.status(500).json({ error: "Erro no serviço, contate o suporte" });
   }
 }
@@ -67,8 +66,6 @@ async function verify(req, res){
       // Verificar se o token é válido
       const decoded = jwt.verify(token, process.env.SEGREDO_JWT);
       
-      console.log(decoded);
-
       //verifica se o token é válido
       if (!decoded.userId || !decoded.nivel_acesso) {
         throw new Error('Token inválido');

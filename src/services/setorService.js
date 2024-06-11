@@ -56,7 +56,7 @@ function alteraSetor(id, descricao, localizacao) {
 
 function ativaInativa(id, param) {
     let ativo = param == "true" ? 1 : 0;
-    console.log(ativo)
+
     return new Promise((aceito, rejeitado) => {
         db.query(`update setor set ativo = ${ativo} where id = '${id}';`, 
             (error, results) => {

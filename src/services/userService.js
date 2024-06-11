@@ -72,7 +72,6 @@ function buscarUser(codigo){
 
     async function cadastraUser(nome, sobrenome, email, username, hashedPassword, setor, cargo, acesso, profile_path) {
         const data_cadastro = datas.ajustarData(datas.obterDataAtualFormatada());
-        console.log(profile_path);
     
         return new Promise((aceito, rejeitado) => {
             // Verifica se o email ou username já existem
@@ -90,7 +89,7 @@ function buscarUser(codigo){
                                 rejeitado(error);
                             } else {
                                 const userId = results.insertId; // Obtém o ID do user inserido
-                                console.log(results);
+
                                 aceito({ id: userId, nome, sobrenome, email, username, setor, cargo, acesso, data_cadastro });
                             }
                         }
@@ -136,7 +135,7 @@ function alteraProfile(id, nome, sobrenome, email, profile_path) {
 
 function ativaInativa(id, param) {
     let ativo = param == "true" ? 1 : 0;
-    console.log(ativo)
+
     return new Promise((aceito, rejeitado) => {
         db.query(`update users set ativo = ${ativo} where id = '${id}';`, 
             (error, results) => {

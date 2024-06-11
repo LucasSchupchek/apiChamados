@@ -4,17 +4,14 @@ const bcrypt = require('bcrypt');
 
 function login(user, password) {
     return new Promise((resolve, reject) => {
-        db.query(`SELECT * FROM users WHERE username = ?`, [user], async (error, results) => {
+        db.query(`SELECT * FROM users WHERE username = ? AND ativo = 1`, [user], async (error, results) => {
             if (error) {
                 reject(error);
                 return;
             }
             if (results.length > 0) {
                 const storedPassword = results[0].password_user;
-                console.log(storedPassword)
-                console.log(password)
-                const isMatch = bcrypt.compare(password, storedPassword);
-                console.log(isMatch);
+                const isMatch = await bcrypt.compare(password, storedPassword);
                 if (isMatch) {
                     const id = results[0].id;
                     const nivel_acesso = results[0].nivel_acesso;
@@ -42,6 +39,7 @@ function login(user, password) {
         });
     });
 }
+
 
 module.exports = {
     login

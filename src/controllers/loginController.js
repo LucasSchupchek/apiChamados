@@ -1,5 +1,6 @@
 const loginService = require('../services/loginService');
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
  
 async function login(req, res) {
   try {
@@ -8,8 +9,12 @@ async function login(req, res) {
       const user = req.body.user;
       const password = req.body.password;
 
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(password, salt);
+
       if (user && password) {
           const login = await loginService.login(user, password);
+          console.log(login);
           if (login.aceito === true) {
               console.log("login");
               const SECRET = process.env.SEGREDO_JWT;
@@ -28,7 +33,7 @@ async function login(req, res) {
               }
               res.status(200).json(json);
           } else {
-              json.error = "usuário ou senha inválido";
+              json.error = "usuário ou senha inválido ou usuário inativo";
               res.status(401).json(json);
           }
       } else {
@@ -40,6 +45,7 @@ async function login(req, res) {
       res.status(500).json({ error: "Erro no serviço, contate o suporte" });
   }
 }
+
 
 async function verify(req, res){
     // Verificar se o header Authorization está presente na requisição

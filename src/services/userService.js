@@ -120,17 +120,16 @@ function alteraUser(id, nome, sobrenome, email, username, setor, cargo, nivel_ac
 function alteraProfile(id, nome, sobrenome, email, profile_path) {
     return new Promise((aceito, rejeitado) => {
         const data_update = datas.ajustarData(datas.obterDataAtualFormatada());
-        db.query(`update users set nome = '${nome}', sobrenome = '${sobrenome}', email = '${email}', path_avatar = '${profile_path}' where id = '${id}';`, 
-            (error, results) => {
-                if (error) {
-                    rejeitado(error);
-                } else {
-                    aceito({
-                        id, nome, sobrenome, email, profile_path
-                    });
-                }
+        let query = `UPDATE users SET nome = ?, sobrenome = ?, email = ?, path_avatar = COALESCE(?, path_avatar) WHERE id = ?`;
+        let params = [nome, sobrenome, email, profile_path, id];
+
+        db.query(query, params, (error, results) => {
+            if (error) {
+                rejeitado(error);
+            } else {
+                aceito({ id, nome, sobrenome, email, profile_path });
             }
-        );
+        });
     });
 }
 

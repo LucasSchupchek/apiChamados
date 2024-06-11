@@ -216,39 +216,31 @@ async function alteraUser(req, res){
     }
 }
 
-async function alteraProfile(req, res){
-    let json = {error: '', result:{}};
+async function alteraProfile(req, res) {
+    let json = { error: '', result: {} };
 
     const id = req.params.id;
     let profile_path = null;
     const { nome, sobrenome, email } = req.body;
-    console.log('campossss '+ nome, sobrenome, email)
 
     if (req.files && req.files.length > 0) {
         for (const file of req.files) {
             try {
-                // Gera um nome único baseado no timestamp atual
                 const timestamp = Date.now();
                 const extensao = path.extname(file.originalname);
                 const nomeArquivo = `${timestamp}${extensao}`;
-                // const filePath = path.resolve(__dirname, './uploads', nomeArquivo);
                 
-                // Obtém o tipo de conteúdo com base na extensão do arquivo
                 const contentType = getContentType(extensao);
                 
-                // Upload do arquivo para o Amazon S3
                 const uploadedFile = await s3Service.uploadFile(file.path, process.env.AWS_BUCKET_NAME_PROFILE, nomeArquivo, {
                     ContentType: contentType
                 });
-                // Adiciona o caminho do arquivo aos anexos
+                
                 profile_path = uploadedFile.Location;
-
-                // Remover o arquivo temporário após o upload
+                
                 fs.unlinkSync(file.path);
             } catch (error) {
                 console.error('Erro ao fazer upload do arquivo:', error);
-                // json.error = 'Erro ao fazer upload do arquivo';
-                // return res.json(json);
             }
         }
     }

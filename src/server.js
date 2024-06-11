@@ -4,7 +4,7 @@ const app = require('express')();
 const server = require('http').createServer(app);
 const io = require('socket.io')(server, {
     cors: {
-        origin: 'https://apichamados.onrender.com:443', // Permitir solicitações da origem do cliente
+        origin: '*', // Permitir solicitações da origem do cliente
         methods: ['GET', 'POST'], // Permitir métodos HTTP permitidos
         allowedHeaders: ['my-custom-header'], // Permitir cabeçalhos personalizados
         credentials: true // Permitir credenciais (cookies, cabeçalhos de autenticação) a serem enviados

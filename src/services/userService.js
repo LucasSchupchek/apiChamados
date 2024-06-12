@@ -164,16 +164,14 @@ function excluirUser(id) {
 }
 
 function alteraSenha(id, hashedPassword) {
-    return new Promise((aceito, rejeitado) => {
-        db.query(`update users set password_user = '${hashedPassword}' where id = '${id}';`, 
-            (error, results) => {
-                if (error) {
-                    rejeitado(error);
-                } else {
-                    aceito(results);
-                }
+    return new Promise((resolve, reject) => {
+        db.query('UPDATE users SET password_user = ? WHERE id = ?', [hashedPassword, id], (error, results) => {
+            if (error) {
+                reject(error);
+            } else {
+                resolve(results);
             }
-        );
+        });
     });
 }
 

@@ -9,9 +9,6 @@ async function login(req, res) {
       const user = req.body.user;
       const password = req.body.password;
 
-      const salt = await bcrypt.genSalt(10);
-      const hashedPassword = await bcrypt.hash(password, salt);
-
       if (user && password) {
           const login = await loginService.login(user, password);
 

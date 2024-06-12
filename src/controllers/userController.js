@@ -106,7 +106,7 @@ async function cadastraUser(req, res) {
 }
 
 async function alteraSenha(req, res) {
-    let json = {error: '', result:{}};
+    let json = { error: '', result: {} };
 
     const id = req.params.id;
     const { currentPassword, newPassword } = req.body;
@@ -136,6 +136,7 @@ async function alteraSenha(req, res) {
         json.result = 'Senha atualizada com sucesso';
         res.json(json);
     } catch (error) {
+        console.error('Erro interno ao alterar a senha:', error);
         json.error = 'Erro interno ao alterar a senha';
         res.status(500).json(json);
     }

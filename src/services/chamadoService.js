@@ -30,7 +30,7 @@ function meusChamados(userId, page, limit, filtroAvancado = {}, dataInicial = nu
     // Condições de filtro avançado
     const whereConditions = [`chamados.id_usuario = '${userId}'`];
     if (filtroAvancado.categoria) {
-        whereConditions.push(`categoria.descricao = '${filtroAvancado.categoria}'`);
+        whereConditions.push(`chamados.id_categoria = '${filtroAvancado.categoria}'`);
     }
     if (filtroAvancado.responsavel) {
         whereConditions.push(`chamados.id_responsavel = '${filtroAvancado.responsavel}'`);
@@ -54,6 +54,8 @@ function meusChamados(userId, page, limit, filtroAvancado = {}, dataInicial = nu
     }
 
     query += ` LIMIT ${limit} OFFSET ${offset}`;
+
+    console.log(query)
 
     return new Promise((aceito, rejeitado) => {
         db.query(query, (error, results) => {
@@ -94,7 +96,7 @@ function buscarTodos(page, limit, filtroAvancado = {}, dataInicial = null, dataF
     // Condições de filtro avançado
     const whereConditions = [];
     if (filtroAvancado.categoria) {
-        whereConditions.push(`categoria.descricao = '${filtroAvancado.categoria}'`);
+        whereConditions.push(`chamados.id_categoria = '${filtroAvancado.categoria}'`);
     }
     if (filtroAvancado.responsavel) {
         whereConditions.push(`chamados.id_responsavel = '${filtroAvancado.responsavel}'`);

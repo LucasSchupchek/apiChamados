@@ -4,6 +4,7 @@ const path = require('path');
 const fs = require('fs');
 const s3Service = require('../config/s3Storage');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
 async function buscarTodos(req, res){
     let json = {error: '', result:{ data: [], totalItems: 0 }};
@@ -108,11 +109,13 @@ async function cadastraUser(req, res) {
 async function alteraSenha(req, res) {
     let json = { error: '', result: {} };
 
-    const id = req.params.id;
+    const authHeader = req.headers['authorization'];
+    const useId = jwt.verify(authHeader.split(' ')[1], process.env.SEGREDO_JWT).userId;
+
     const { currentPassword, newPassword } = req.body;
 
     try {
-        const user = await userService.buscarUser(id);
+        const user = await userService.buscarUserPassword(useId);
 
         if (!user) {
             json.error = 'Usuário não encontrado';
@@ -120,7 +123,10 @@ async function alteraSenha(req, res) {
         }
 
         // Verifica se a senha atual está correta
+        console.log(currentPassword);
+        console.log(user);
         const isMatch = await bcrypt.compare(currentPassword, user.password_user);
+
         if (!isMatch) {
             json.error = 'Senha atual incorreta';
             return res.status(400).json(json);
@@ -131,7 +137,7 @@ async function alteraSenha(req, res) {
         const hashedPassword = await bcrypt.hash(newPassword, salt);
 
         // Atualiza a senha no banco de dados
-        await userService.alteraSenha(id, hashedPassword);
+        await userService.alteraSenha(useId, hashedPassword);
 
         json.result = 'Senha atualizada com sucesso';
         res.json(json);

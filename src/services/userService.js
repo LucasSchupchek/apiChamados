@@ -70,6 +70,26 @@ function buscarUser(codigo){
         });
     }
 
+function buscarUserPassword(codigo){
+        return new Promise((aceito, rejeitado)=>{
+    
+            db.query(`select
+                        id,
+                        password_user
+                    from
+                    users
+                    where id = ${codigo};`,
+                (error, results)=>{
+                        if(error){rejeitado(error); return};
+                        if(results.length > 0){
+                            aceito(results[0]);
+                        }else{
+                            aceito(false)
+                        }
+                    });
+            });
+    }
+
     async function cadastraUser(nome, sobrenome, email, username, hashedPassword, setor, cargo, acesso, profile_path) {
         const data_cadastro = datas.ajustarData(datas.obterDataAtualFormatada());
     
@@ -184,5 +204,6 @@ module.exports = {
     ativaInativa,
     excluirUser,
     alteraSenha,
-    alteraProfile
+    alteraProfile,
+    buscarUserPassword
 };

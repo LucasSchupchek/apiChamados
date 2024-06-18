@@ -23,8 +23,15 @@ const getChatMessages = (chatId, page, limit) => {
 
     return new Promise((resolve, reject) => {
         const query = `
-            SELECT *
+            SELECT 
+                comentarios_chamado.id,
+                comentarios_chamado.id_chamado,
+                comentarios_chamado.id_usuario,
+                comentarios_chamado.data_inclusao,
+                comentarios_chamado.descricao,
+                users.nome
             FROM comentarios_chamado
+            INNER JOIN users on comentarios_chamado.id_usuario = users.id
             WHERE id_chamado = ?
             ORDER BY data_inclusao ASC
             LIMIT ?

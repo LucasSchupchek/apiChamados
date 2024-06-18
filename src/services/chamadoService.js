@@ -12,6 +12,7 @@ function meusChamados(userId, page, limit, filtroAvancado = {}, dataInicial = nu
                     chamados.data_cadastro,
                     chamados.data_update,
                     chamados.data_fechamento,
+                    chamados.id_usuario,
                     (select users.nome from users where users.id = chamados.id_usuario) as nome_usuario,
                     (select users.sobrenome from users where users.id = chamados.id_usuario) as sobrenome_usuario,
                     (select users.email from users where users.id = chamados.id_usuario) as email_usuario,
@@ -78,6 +79,7 @@ function buscarTodos(page, limit, filtroAvancado = {}, dataInicial = null, dataF
                     chamados.data_cadastro,
                     chamados.data_update,
                     chamados.data_fechamento,
+                    chamados.id_usuario,
                     (select users.nome from users where users.id = chamados.id_usuario) as nome_usuario,
                     (select users.sobrenome from users where users.id = chamados.id_usuario) as sobrenome_usuario,
                     (select users.email from users where users.id = chamados.id_usuario) as email_usuario,
@@ -142,7 +144,8 @@ function listChamados(page, limit) {
                     chamados.status_chamado,
                     chamados.data_cadastro,
                     chamados.data_update,
-                    chamados.data_fechamento
+                    chamados.data_fechamento,
+                    chamados.id_usuario,
                 FROM 
                     chamados 
                 ORDER BY chamados.data_cadastro DESC
@@ -167,6 +170,7 @@ function buscarChamado(codigo){
         chamados.data_cadastro,
         chamados.data_update,
         chamados.data_fechamento,
+        chamados.id_usuario,
         (select users.nome from users where users.id = chamados.id_usuario) as nome_usuario,
         (select users.sobrenome from users where users.id = chamados.id_usuario) as sobrenome_usuario,
         (select users.email from users where users.id = chamados.id_usuario) as email_usuario,

@@ -42,6 +42,7 @@ async function meusChamados(req, res) {
                     data_update: formatarData(chamado.data_update),
                     data_fechamento: formatarData(chamado.data_fechamento),
                     descricao_categoria: chamado.descricao_categoria,
+                    id_usuario: chamado.id_usuario,
                     usuario: `${chamado.nome_usuario} ${chamado.sobrenome_usuario}`,
                     email_usuario: chamado.email_usuario,
                     email_responsavel: chamado?.email_responsavel,
@@ -102,6 +103,7 @@ async function buscarTodos(req, res) {
                 data_update: formatarData(chamado.data_update),
                 data_fechamento: formatarData(chamado.data_fechamento),
                 descricao_categoria: chamado.descricao_categoria,
+                id_usuario: chamado.id_usuario,
                 usuario: `${chamado.nome_usuario} ${chamado.sobrenome_usuario}`,
                 email_usuario: chamado.email_usuario,
                 id_responsavel: chamado?.id_responsavel,
@@ -149,7 +151,8 @@ async function listChamados(req, res) {
                     status: chamado.status_chamado,
                     data_cadastro: formatarData(chamado.data_cadastro),
                     data_update: formatarData(chamado.data_update),
-                    data_fechamento: formatarData(chamado.data_fechamento)
+                    data_fechamento: formatarData(chamado.data_fechamento),
+                    id_usuario: chamado.id_usuario
                 });
             }
         });
@@ -189,6 +192,7 @@ async function buscarChamado(req, res){
                 data_update: formatarData(chamado.data_update),
                 data_fechamento: formatarData(chamado.data_fechamento),
                 descricao_categoria: chamado.descricao_categoria,
+                id_usuario: chamado.id_usuario,
                 usuario: `${chamado.nome_usuario} ${chamado.sobrenome_usuario}`,
                 id_responsavel: chamado?.id_responsavel,
                 email_usuario: chamado.email_usuario,

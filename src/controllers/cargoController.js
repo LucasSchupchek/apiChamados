@@ -13,6 +13,19 @@ async function buscarTodos(req, res){
     res.json(json);
 }
 
+async function buscarAtivos(req, res){
+    let json = { error: '', result: { data: [], totalItems: 0 } };
+    let cargos = await cargoService.buscarAtivos();
+
+    json.result.data = cargos.map(setor => ({
+        id: setor.id,
+        descricao: setor.descricao,
+        ativo: setor.ativo
+    }));
+    json.result.totalItems = cargos.length; // Ajustar conforme a paginação se necessário
+    res.json(json);
+}
+
 async function buscarCargo(req, res){
     let json = {error: '', result:{}};
 
@@ -79,6 +92,7 @@ async function excluirCargo(req, res){
 
 module.exports = {
     buscarTodos,
+    buscarAtivos,
     ativaInativa,
     buscarCargo,
     cadastraCargo,

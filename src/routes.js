@@ -34,6 +34,7 @@ router.put('/atualizaStatus/:id', chamadoController.atualizaStatus);
 router.delete('/chamado/:id', chamadoController.excluirChamado);
 
 router.get('/categorias', categoriaController.buscarTodos);
+router.get('/categorias/ativos', categoriaController.buscarAtivos);
 router.get('/categoria/:id', categoriaController.buscarCategoria);
 router.post('/categoria', categoriaController.cadastraCategoria);
 router.put('/categoria/:id', categoriaController.alteraCategoria);
@@ -48,6 +49,7 @@ router.delete('/comentario/:id', comentarioController.excluirComentario);
 router.get('/chat', chatController.getChatMessages);
 
 router.get('/setores', setorController.buscarTodos);
+router.get('/setores/ativos', setorController.buscarAtivos);
 router.get('/setor/:id', setorController.buscarSetor);
 router.post('/setor', setorController.cadastraSetor);
 router.put('/setor/:id', setorController.alteraSetor);
@@ -55,6 +57,7 @@ router.put('/setorAtivo/:id', setorController.ativaInativa);
 router.delete('/setor/:id', setorController.excluirSetor);
 
 router.get('/cargos', cargoController.buscarTodos);
+router.get('/cargos/ativos', cargoController.buscarAtivos);
 router.get('/cargo/:id', cargoController.buscarCargo);
 router.post('/cargo', cargoController.cadastraCargo);
 router.put('/cargo/:id', cargoController.alteraCargo);

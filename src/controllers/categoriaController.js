@@ -14,6 +14,20 @@ async function buscarTodos(req, res){
     res.json(json);
 }
 
+async function buscarAtivos(req, res){
+    let json = { error: '', result: { data: [], totalItems: 0 } };
+    let categorias = await categoriaService.buscarAtivos();
+
+    json.result.data = categorias.map(categoria => ({
+        id: categoria.id,
+        descricao: categoria.descricao,
+        color: categoria.color,
+        ativo: categoria.ativo
+    }));
+    json.result.totalItems = categorias.length; // Ajustar conforme a paginação se necessário
+    res.json(json);
+}
+
 async function buscarCategoria(req, res){
     let json = {error: '', result:{}};
 
@@ -83,6 +97,7 @@ async function excluirCategoria(req, res){
 
 module.exports = {
     ativaInativa,
+    buscarAtivos,
     buscarTodos,
     buscarCategoria,
     cadastraCategoria,

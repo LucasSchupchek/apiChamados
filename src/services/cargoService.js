@@ -10,6 +10,16 @@ function buscarTodos(){
     });
 };
 
+function buscarAtivos(){
+    return new Promise((aceito, rejeitado)=>{
+
+        db.query('select * from cargo where ativo = 1', (error, results)=>{
+            if(error){rejeitado(error); return}
+            aceito(results);
+        });
+    });
+};
+
 function buscarCargo(codigo){
     return new Promise((aceito, rejeitado)=>{
 
@@ -86,6 +96,7 @@ function excluirCargo(id) {
 
 module.exports = {
     buscarTodos,
+    buscarAtivos,
     ativaInativa,
     buscarCargo,
     cadastraCargo,

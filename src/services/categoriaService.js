@@ -9,6 +9,15 @@ function buscarTodos(){
     });
 };
 
+function buscarAtivos(){
+    return new Promise((aceito, rejeitado)=>{
+        db.query('select * from categoria where ativo = 1', (error, results)=>{
+            if(error){rejeitado(error); return}
+            aceito(results);
+        });
+    });
+};
+
 function buscarCategoria(codigo){
     return new Promise((aceito, rejeitado)=>{
 
@@ -89,5 +98,6 @@ module.exports = {
     buscarCategoria,
     cadastraCategoria,
     alteraCategoria,
-    excluirCategoria
+    excluirCategoria,
+    buscarAtivos
 }

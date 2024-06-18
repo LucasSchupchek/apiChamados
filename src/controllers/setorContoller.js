@@ -14,6 +14,20 @@ async function buscarTodos(req, res){
     res.json(json);
 }
 
+async function buscarAtivos(req, res){
+    let json = { error: '', result: { data: [], totalItems: 0 } };
+    let setores = await setorService.buscarAtivos();
+
+    json.result.data = setores.map(setor => ({
+        id: setor.id,
+        descricao: setor.descricao,
+        localizacao: setor.localizacao,
+        ativo: setor.ativo
+    }));
+    json.result.totalItems = setores.length; // Ajustar conforme a paginação se necessário
+    res.json(json);
+}
+
 async function buscarSetor(req, res){
     let json = {error: '', result:{}};
     const codigo = req.params.id;
@@ -81,6 +95,7 @@ async function excluirSetor(req, res){
 module.exports = {
     ativaInativa,
     buscarTodos,
+    buscarAtivos,
     buscarSetor,
     cadastraSetor,
     alteraSetor,

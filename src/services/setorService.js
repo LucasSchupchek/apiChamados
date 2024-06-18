@@ -9,6 +9,15 @@ function buscarTodos(){
     });
 }
 
+function buscarAtivos(){
+    return new Promise((resolve, reject)=>{
+        db.query('SELECT * FROM setor where ativo = 1', (error, results)=>{
+            if(error){ reject(error); return; }
+            resolve(results);
+        });
+    });
+}
+
 function buscarSetor(codigo){
     return new Promise((aceito, rejeitado)=>{
 
@@ -89,5 +98,6 @@ module.exports = {
     buscarSetor,
     cadastraSetor,
     alteraSetor,
-    excluirSetor
+    excluirSetor,
+    buscarAtivos
 }
